@@ -1,0 +1,23 @@
+editSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/collapse:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/form:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/textarea:
+    /vendor/yui/connection/connection-min:
+    /vendor/yui/datasource/datasource-min:
+    /vendor/yui/autocomplete/autocomplete-min:
+    autocomplete:
+    multiInput:
+
+indexSuccess:
+  javascripts:
+    /vendor/yui/connection/connection-min:
+    /vendor/yui/datasource/datasource-min:
+    /vendor/yui/container/container-min:
+    /js/sidebarPaginatedList:
+    blank:
+
+all:
+  components:
+    css:
+      [repository, stylesheet]

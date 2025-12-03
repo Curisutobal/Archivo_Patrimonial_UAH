@@ -1,0 +1,25 @@
+boxListSuccess:
+  stylesheets:
+    print-reports: { media: screen, position: last }
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/tableheader:
+
+editSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/tableheader:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/collapse:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/form:
+
+indexSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/tableheader:
+    blank:
+
+browseSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/tableheader:
+
+holdingsReportExportSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/collapse:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/form:

@@ -1,0 +1,29 @@
+# You can find more information about this file on the symfony website:
+# http://www.symfony-project.org/reference/1_4/en/12-Filters
+
+history:
+  class: sfHistoryPluginFilter
+
+rendering: ~
+security: ~
+
+settings:
+  class: QubitSettingsFilter
+
+QubitLimitIp:
+  class: QubitLimitIpFilter
+
+QubitSslRequirement:
+  class: QubitSslRequirementFilter
+
+QubitMeta:
+  class: QubitMeta
+
+QubitLimitResults:
+  class: QubitLimitResults
+
+QubitTransaction:
+  class: QubitTransactionFilter
+
+cache: ~
+execution: ~

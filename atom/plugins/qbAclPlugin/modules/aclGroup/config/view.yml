@@ -1,0 +1,67 @@
+editSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/collapse:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/form:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/textarea:
+
+editActorAclSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/collapse:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/form:
+    /vendor/yui/connection/connection-min:
+    /vendor/yui/datasource/datasource-min:
+    /vendor/yui/autocomplete/autocomplete-min:
+    autocomplete:
+
+editRepositoryAclSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/collapse:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/form:
+    /vendor/yui/connection/connection-min:
+    /vendor/yui/datasource/datasource-min:
+    /vendor/yui/autocomplete/autocomplete-min:
+    autocomplete:
+
+editInformationObjectAclSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/collapse:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/form:
+    /vendor/yui/connection/connection-min:
+    /vendor/yui/datasource/datasource-min:
+    /vendor/yui/autocomplete/autocomplete-min:
+    /vendor/yui/container/container-min:
+    autocomplete:
+    aclDialog:
+
+editTermAclSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/collapse:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/form:
+    /vendor/yui/connection/connection-min:
+    /vendor/yui/datasource/datasource-min:
+    /vendor/yui/autocomplete/autocomplete-min:
+    autocomplete:
+
+indexSuccess:
+  javascripts:
+    blank:
+
+indexActorAclSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/tableheader:
+
+indexRepositoryAclSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/tableheader:
+
+indexInformationObjectAclSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/tableheader:
+
+indexTermAclSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/tableheader:
+
+listSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/tableheader:

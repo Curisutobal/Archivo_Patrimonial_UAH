@@ -1,0 +1,109 @@
+# You can find more information about this file on the symfony website:
+# http://www.symfony-project.org/reference/1_4/en/10-Routing
+
+homepage:
+  url: /
+  class: QubitResourceRoute
+  param:
+    module: staticpage
+    action: home
+    slug: home
+
+# --------------------------------------------------------- <QubitMetadataRoute>
+# QubitMetadataRoute objects will generate and match URL to integrate the
+# multiple metadata standards available.
+
+slug;template:
+  url: /:slug;:template
+  class: QubitMetadataRoute
+  param:
+    action: index
+    slug: { pattern: '[^;]+' }
+
+slug:
+  url: /:slug
+  class: QubitMetadataRoute
+  param:
+    action: index
+
+edit:
+  url: /:slug/edit
+  class: QubitMetadataRoute
+  param:
+    action: edit
+
+copy:
+  url: /:module/copy
+  class: QubitMetadataRoute
+  param:
+    action: edit
+
+add:
+  url: /:module/add
+  class: QubitMetadataRoute
+  param:
+    action: edit
+
+# -------------------------------------------------------- </QubitMetadataRoute>
+
+sword/action/slug:
+  url: /sword/:action/:slug
+  class: QubitResourceRoute
+  param:
+    module: qtSwordPlugin
+    throw404: false
+
+sword:
+  url: /sword/:action
+  param:
+    module: qtSwordPlugin
+
+slug/default:
+  url: /:slug/:module/:action
+  class: QubitResourceRoute
+
+informationobject/action:
+  url: /:slug/:action
+  class: QubitResourceRoute
+  param:
+    module: informationobject
+    action: { pattern: 'fileList|multiFileUpload|rename|reports|slugPreview|modifications|calculateDates' }
+
+term/action:
+  url: /:slug/:action
+  class: QubitResourceRoute
+  param:
+    module: term
+    action: { pattern: 'relatedAuthorities' }
+
+oai:
+  url: /;oai
+  param:
+    module: arOaiPlugin
+    action: index
+
+# ------------------------------------------------------------------------------
+
+slug;default_index:
+  url:   /:slug;:module
+  class: QubitResourceRoute
+  param:
+    action: index
+
+id/default:
+  url: /:module/:action/id/:id
+  class: QubitRoute
+
+default_index:
+  url: /:module
+  param:
+    action: index
+
+upload:
+  url: /uploads/r/*
+  param:
+    module: digitalobject
+    action: view
+
+default:
+  url: /:module/:action

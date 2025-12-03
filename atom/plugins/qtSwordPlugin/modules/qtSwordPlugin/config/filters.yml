@@ -1,0 +1,16 @@
+# Prepend qtSwordPluginHttpAuthFilter to the chain
+httpAuthFilter:
+  class: qtSwordPluginHttpAuthFilter
+
+# Inherit filters, cascade mechanism
+history: ~
+rendering: ~
+security: ~
+settings: ~
+QubitLimitIp: ~
+QubitSslRequirement: ~
+QubitMeta: ~
+QubitLimitResults: ~
+QubitTransaction: ~
+cache: ~
+execution: ~

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="propel" package="plugins.qbAclPlugin.lib.model" defaultIdMethod="native">
+
+  <table name="acl_group" phpName="aclGroup" isI18N="true" i18nTable="acl_group_i18n">
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="parent_id" type="integer" />
+    <foreign-key foreignTable="acl_group" onDelete="cascade">
+      <reference local="parent_id" foreign="id" />
+    </foreign-key>
+    <column name="created_at" required="true" type="timestamp" />
+    <column name="updated_at" required="true" type="timestamp" />
+    <column name="source_culture" required="true" size="16" type="varchar" />
+    <column name="serial_number" required="true" type="integer" default="0" />
+  </table>
+
+  <table name="acl_group_i18n" phpName="aclGroupI18n">
+    <column name="name" type="varchar" size="255" />
+    <column name="description" type="longvarchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="acl_group" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="acl_permission" phpName="aclPermission">
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="user_id" type="integer" />
+    <foreign-key foreignTable="user" onDelete="cascade">
+      <reference local="user_id" foreign="id" />
+    </foreign-key>
+    <column name="group_id" type="integer" />
+    <foreign-key foreignTable="acl_group" onDelete="cascade">
+      <reference local="group_id" foreign="id" />
+    </foreign-key>
+    <column name="object_id" type="integer" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="object_id" foreign="id" />
+    </foreign-key>
+    <column name="action" type="varchar" />
+    <column name="grant_deny" type="integer" required="true" default="0" />
+    <column name="conditional" type="longvarchar" />
+    <column name="constants" type="longvarchar" />
+    <column name="created_at" required="true" type="timestamp" />
+    <column name="updated_at" required="true" type="timestamp" />
+    <column name="serial_number" required="true" type="integer" default="0" />
+  </table>
+
+  <table name="acl_user_group" phpName="aclUserGroup">
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="user_id" type="integer" required="true" />
+    <foreign-key foreignTable="user" onDelete="cascade">
+      <reference local="user_id" foreign="id" />
+    </foreign-key>
+    <column name="group_id" type="integer" required="true" />
+    <foreign-key foreignTable="acl_group" onDelete="cascade">
+      <reference local="group_id" foreign="id" />
+    </foreign-key>
+    <column name="serial_number" required="true" type="integer" default="0" />
+  </table>
+
+</database>

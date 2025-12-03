@@ -1,0 +1,61 @@
+browseSuccess:
+  stylesheets:
+    /vendor/jquery-ui/jquery-ui.min.css:
+  javascripts:
+    /vendor/yui/connection/connection-min:
+    /vendor/yui/datasource/datasource-min:
+    /vendor/yui/autocomplete/autocomplete-min:
+    autocomplete:
+
+listSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/tableheader:
+
+physicalObjects:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/tableheader:
+
+multiFileUploadSuccess:
+  stylesheets:
+    /vendor/uppy/uppy-bundle.css:
+  javascripts:
+    /vendor/uppy/uppy-bundle.js:
+    multiFileUpload:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/collapse:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/form:
+    description:
+    blank:
+
+storageLocationsSuccess:
+  stylesheets:
+    print-reports: { media: screen, position: last }
+
+multiFileUpdateSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/collapse:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/form:
+
+renameSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/collapse:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/form:
+    sidebarPaginatedList:
+    description:
+    rename:
+
+updatePublicationStatusSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/collapse:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/form:
+    sidebarPaginatedList:
+
+uploadFindingAidSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/collapse:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/form:
+    sidebarPaginatedList:
+
+all:
+  components:
+    css:
+      [informationobject, stylesheet]

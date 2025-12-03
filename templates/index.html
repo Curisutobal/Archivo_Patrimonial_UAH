@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archivo Patrimonial UAH</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: #ff6600;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .chat-box {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .user {
+            background: #e3f2fd;
+            text-align: right;
+        }
+        .bot {
+            background: #f5f5f5;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+        input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 30px;
+            background: #ff6600;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:disabled {
+            background: #ccc;
+        }
+        .docs {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .doc-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f9f9f9;
+            border-left: 3px solid #ff6600;
+        }
+        .doc-item a {
+            color: #ff6600;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Asistente IA - Archivo Patrimonial UAH</h1>
+        <p>Busca documentos historicos del archivo patrimonial</p>
+    </div>
+
+    <div class="chat-box" id="messages">
+        <div class="message bot">
+            <strong>Asistente:</strong> Hola! Preguntame sobre documentos del Archivo Patrimonial.
+        </div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Escribe tu pregunta..." onkeypress="if(event.key==='Enter') sendMessage()">
+        <button onclick="sendMessage()" id="sendBtn">Enviar</button>
+    </div>
+
+    <div class="docs" id="docs" style="display:none;">
+        <h3>Documentos encontrados:</h3>
+        <div id="docList"></div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            // 1. Capturar el input y la consulta
+            const input = document.getElementById('userInput');
+            // Usamos .trim() para eliminar espacios en blanco al inicio/final
+            const query = input.value.trim(); 
+
+            // 2. Validación: si la consulta está vacía, no enviamos nada (evita 400 BAD REQUEST)
+            if (!query) {
+                // Opcional: podrías mostrar una alerta o un mensaje de error en el chatbox
+                console.log("Consulta vacía, no se envía la petición.");
+                return; 
+            }
+
+            const messages = document.getElementById('messages');
+            const sendBtn = document.getElementById('sendBtn');
+            
+            // Add user message
+            messages.innerHTML += `<div class="message user"><strong>Tu:</strong> ${query}</div>`;
+            input.value = ''; // Limpia el input
+            sendBtn.disabled = true;
+
+            // Loading message
+            messages.innerHTML += `<div class="message bot" id="loading"><strong>Asistente:</strong> Buscando...</div>`;
+            messages.scrollTop = messages.scrollHeight;
+
+            try {
+                // Usamos la URL completa 'http://localhost:5000/chat' para mayor claridad y evitar problemas
+                const response = await fetch('http://localhost:5000/chat', { 
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({query}) // Envía la variable query capturada
+                });
+                
+                // Si la respuesta no es exitosa (ej. 400, 500), lanzamos un error para ir al bloque catch
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({error: 'Error desconocido del servidor'}));
+                    throw new Error(`Error HTTP: ${response.status}. Detalles: ${errorData.error || response.statusText}`);
+                }
+
+                const data = await response.json();
+                
+                // Remove loading
+                const loadingElement = document.getElementById('loading');
+                if (loadingElement) loadingElement.remove();
+
+                // Add response
+                messages.innerHTML += `<div class="message bot"><strong>Asistente:</strong> ${data.response}</div>`;
+                
+                // Show documents
+                if (data.documents && data.documents.length > 0) {
+                    const docsDiv = document.getElementById('docs');
+                    const docList = document.getElementById('docList');
+                    docsDiv.style.display = 'block';
+                    docList.innerHTML = '';
+                    
+                    data.documents.forEach(doc => {
+                        // Aseguramos que el score de relevancia exista antes de usarlo
+                        const relevance = doc.relevance_score ? (doc.relevance_score * 100).toFixed(1) : 'N/A';
+                        docList.innerHTML += `
+                            <div class="doc-item">
+                                <a href="${doc.href}" target="_blank">${doc.title}</a>
+                                <br><small>Relevancia: ${relevance}%</small>
+                            </div>
+                        `;
+                    });
+                } else {
+                    // Ocultar sección de documentos si no se encuentran
+                    document.getElementById('docs').style.display = 'none';
+                }
+
+                messages.scrollTop = messages.scrollHeight;
+            } catch (error) {
+                console.error("Error en la solicitud:", error);
+                
+                // Intenta remover el loading message
+                const loadingElement = document.getElementById('loading');
+                if (loadingElement) loadingElement.remove();
+                
+                // Muestra un mensaje de error detallado
+                messages.innerHTML += `<div class="message bot"><strong>Error:</strong> No se pudo procesar la solicitud. Por favor, verifica que el servidor Flask esté corriendo en <code>http://localhost:5000</code>. Detalles: ${error.message}</div>`;
+            } finally {
+                sendBtn.disabled = false;
+                messages.scrollTop = messages.scrollHeight;
+            }
+        }
+    </script>
+</body>
+</html>

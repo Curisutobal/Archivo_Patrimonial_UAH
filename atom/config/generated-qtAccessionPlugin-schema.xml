@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="propel" package="plugins.qtAccessionPlugin.lib.model" defaultIdMethod="native">
+
+  <table name="accession" isI18N="true" i18nTable="accession_i18n">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="acquisition_type_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="acquisition_type_id" foreign="id" />
+    </foreign-key>
+    <column name="date" type="bu_date" />
+    <column name="identifier" type="varchar" size="255" />
+    <unique>
+      <unique-column name="identifier" />
+    </unique>
+    <column name="processing_priority_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="processing_priority_id" foreign="id" />
+    </foreign-key>
+    <column name="processing_status_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="processing_status_id" foreign="id" />
+    </foreign-key>
+    <column name="resource_type_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="resource_type_id" foreign="id" />
+    </foreign-key>
+    <column name="created_at" required="true" type="timestamp" />
+    <column name="updated_at" required="true" type="timestamp" />
+    <column name="source_culture" required="true" size="16" type="varchar" />
+  </table>
+
+  <table name="accession_i18n">
+    <column name="appraisal" type="longvarchar" />
+    <column name="archival_history" type="longvarchar" />
+    <column name="location_information" type="longvarchar" />
+    <column name="physical_characteristics" type="longvarchar" />
+    <column name="processing_notes" type="longvarchar" />
+    <column name="received_extent_units" type="longvarchar" />
+    <column name="scope_and_content" type="longvarchar" />
+    <column name="source_of_acquisition" type="longvarchar" />
+    <column name="title" type="varchar" size="255" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="accession" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="deaccession" isI18N="true" i18nTable="deaccession_i18n">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="accession_id" type="integer" />
+    <foreign-key foreignTable="accession" onDelete="cascade">
+      <reference local="accession_id" foreign="id" />
+    </foreign-key>
+    <column name="date" type="bu_date" />
+    <column name="identifier" type="varchar" size="255" />
+    <column name="scope_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="scope_id" foreign="id" />
+    </foreign-key>
+    <column name="created_at" required="true" type="timestamp" />
+    <column name="updated_at" required="true" type="timestamp" />
+    <column name="source_culture" required="true" size="16" type="varchar" />
+  </table>
+
+  <table name="deaccession_i18n">
+    <column name="description" type="longvarchar" />
+    <column name="extent" type="longvarchar" />
+    <column name="reason" type="longvarchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="deaccession" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="donor">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="actor" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+  </table>
+
+</database>

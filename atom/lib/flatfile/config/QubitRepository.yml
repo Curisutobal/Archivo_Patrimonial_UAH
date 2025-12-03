@@ -1,0 +1,77 @@
+# All columns that can be either imported or exported
+columnNames:
+  - legacyId
+  - uploadLimit
+  - identifier
+  - authorizedFormOfName
+  - parallelFormsOfName
+  - otherFormsOfName
+  - types
+  - contactPerson
+  - streetAddress
+  - city
+  - region
+  - country
+  - postalCode
+  - telephone
+  - fax
+  - email
+  - website
+  - history
+  - geoculturalContext
+  - mandates
+  - internalStructures
+  - collectingPolicies
+  - buildings
+  - holdings
+  - findingAids
+  - openingTimes
+  - accessConditions
+  - disabledAccess
+  - researchServices
+  - reproductionServices
+  - publicFacilities
+  - descriptionIdentifier
+  - institutionIdentifier
+  - descriptionRules
+  - descriptionStatus
+  - levelOfDetail
+  - descriptionRevisionHistory
+  - language
+  - script
+  - descriptionSources
+  - maintenanceNote
+  - geographicSubregions
+  - thematicAreas
+  - culture
+
+# Columns that map directly to information object properties
+direct:
+  - authorizedFormOfName
+  - identifier
+  - culture
+  - openingTimes
+  - geoculturalContext
+  - holdings
+  - findingAids
+  - uploadLimit
+  - history
+  - mandates
+  - internalStructures
+  - collectingPolicies
+  - buildings
+  - accessConditions
+  - disabledAccess
+  - researchServices
+  - reproductionServices
+  - publicFacilities
+  - language
+  - script
+
+# Columns that map to information object properties
+map:
+  descIdentifier: descriptionIdentifier
+  descInstitutionIdentifier: institutionIdentifier
+  descRules: descriptionRules
+  descRevisionHistory: descriptionRevisionHistory
+  descSources: descriptionSources

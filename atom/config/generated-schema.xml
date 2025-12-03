@@ -1,0 +1,852 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="propel" defaultIdMethod="native" package="lib.model">
+
+  <table name="access_log">
+    <column name="id" type="integer" primaryKey="true" autoIncrement="true" inheritanceKey="" />
+    <column name="object_id" type="integer" required="true" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="object_id" foreign="id" />
+    </foreign-key>
+    <column name="access_date" type="timestamp" />
+    <index name="1">
+      <index-column name="access_date" />
+      <index-column name="object_id" />
+    </index>
+  </table>
+
+  <table name="actor" isI18N="true" i18nTable="actor_i18n">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="corporate_body_identifiers" type="varchar" size="1024" />
+    <column name="entity_type_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="entity_type_id" foreign="id" />
+    </foreign-key>
+    <column name="description_status_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="description_status_id" foreign="id" />
+    </foreign-key>
+    <column name="description_detail_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="description_detail_id" foreign="id" />
+    </foreign-key>
+    <column name="description_identifier" type="varchar" size="1024" />
+    <column name="source_standard" type="varchar" size="1024" />
+    <column name="parent_id" type="integer" />
+    <foreign-key foreignTable="actor" onDelete="cascade">
+      <reference local="parent_id" foreign="id" />
+    </foreign-key>
+    <column name="source_culture" required="true" size="16" type="varchar" />
+  </table>
+
+  <table name="actor_i18n">
+    <column name="authorized_form_of_name" type="varchar" size="1024" />
+    <column name="dates_of_existence" type="varchar" size="1024" />
+    <column name="history" type="longvarchar" />
+    <column name="places" type="longvarchar" />
+    <column name="legal_status" type="longvarchar" />
+    <column name="functions" type="longvarchar" />
+    <column name="mandates" type="longvarchar" />
+    <column name="internal_structures" type="longvarchar" />
+    <column name="general_context" type="longvarchar" />
+    <column name="institution_responsible_identifier" type="varchar" size="1024" />
+    <column name="rules" type="longvarchar" />
+    <column name="sources" type="longvarchar" />
+    <column name="revision_history" type="longvarchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="actor" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="aip">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="type_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="type_id" foreign="id" />
+    </foreign-key>
+    <column name="uuid" type="varchar" size="36" />
+    <column name="filename" type="varchar" size="1024" />
+    <column name="size_on_disk" type="bigint" />
+    <column name="digital_object_count" type="integer" />
+    <column name="created_at" type="timestamp" />
+    <column name="part_of" type="integer" />
+    <foreign-key foreignTable="object" onDelete="setnull">
+      <reference local="part_of" foreign="id" />
+    </foreign-key>
+  </table>
+
+  <table name="audit_log">
+    <column name="id" type="integer" primaryKey="true" autoIncrement="true" inheritanceKey="" />
+    <column name="object_id" type="integer" required="true" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="object_id" foreign="id" />
+    </foreign-key>
+    <column name="user_id" type="integer" required="false" />
+    <foreign-key foreignTable="user" onDelete="setnull">
+      <reference local="user_id" foreign="id" />
+    </foreign-key>
+    <column name="user_name" type="varchar" size="255" />
+    <column name="action_type_id" type="integer" required="false" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="action_type_id" foreign="id" />
+    </foreign-key>
+    <column name="created_at" type="timestamp" />
+  </table>
+
+  <table name="job">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="name" type="varchar" size="255" />
+    <column name="download_path" type="longvarchar" />
+    <column name="completed_at" type="timestamp" />
+    <column name="user_id" type="integer" required="false" />
+    <foreign-key foreignTable="user" onDelete="setnull">
+      <reference local="user_id" foreign="id" />
+    </foreign-key>
+    <column name="object_id" type="integer" require="" />
+    <foreign-key foreignTable="object" onDelete="setnull">
+      <reference local="object_id" foreign="id" />
+    </foreign-key>
+    <column name="status_id" type="integer" required="false" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="status_id" foreign="id" />
+    </foreign-key>
+    <column name="output" type="longvarchar" />
+  </table>
+
+  <table name="clipboard_save">
+    <column name="id" type="integer" primaryKey="true" autoIncrement="true" inheritanceKey="" />
+    <column name="user_id" type="integer" required="false" />
+    <foreign-key foreignTable="user" onDelete="setnull">
+      <reference local="user_id" foreign="id" />
+    </foreign-key>
+    <column name="password" type="varchar" size="255" />
+    <column name="created_at" type="timestamp" />
+  </table>
+
+  <table name="clipboard_save_item">
+    <column name="id" type="integer" primaryKey="true" autoIncrement="true" inheritanceKey="" />
+    <column name="save_id" type="integer" required="false" />
+    <foreign-key foreignTable="clipboard_save" onDelete="cascade">
+      <reference local="save_id" foreign="id" />
+    </foreign-key>
+    <column name="item_class_name" type="varchar" size="255" />
+    <column name="slug" type="varchar" size="255" />
+  </table>
+
+  <table name="contact_information" isI18N="true" i18nTable="contact_information_i18n">
+    <column name="actor_id" type="integer" required="true" />
+    <foreign-key foreignTable="actor" onDelete="cascade">
+      <reference local="actor_id" foreign="id" />
+    </foreign-key>
+    <column name="primary_contact" type="boolean" />
+    <column name="contact_person" type="varchar" size="1024" />
+    <column name="street_address" type="longvarchar" />
+    <column name="website" type="varchar" size="1024" />
+    <column name="email" type="varchar" size="255" />
+    <column name="telephone" type="varchar" size="255" />
+    <column name="fax" type="varchar" size="255" />
+    <column name="postal_code" type="varchar" size="255" />
+    <column name="country_code" type="varchar" size="255" />
+    <column name="longitude" type="float" />
+    <column name="latitude" type="float" />
+    <column name="created_at" required="true" type="timestamp" />
+    <column name="updated_at" required="true" type="timestamp" />
+    <column name="source_culture" required="true" size="16" type="varchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="serial_number" required="true" type="integer" default="0" />
+  </table>
+
+  <table name="contact_information_i18n">
+    <column name="contact_type" type="varchar" size="1024" />
+    <column name="city" type="varchar" size="1024" />
+    <column name="region" type="varchar" size="1024" />
+    <column name="note" type="longvarchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="contact_information" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="digital_object">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="object_id" type="integer" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="object_id" foreign="id" />
+    </foreign-key>
+    <column name="usage_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="usage_id" foreign="id" />
+    </foreign-key>
+    <column name="mime_type" type="varchar" size="255" />
+    <column name="media_type_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="media_type_id" foreign="id" />
+    </foreign-key>
+    <column name="name" type="varchar" required="true" size="1024" />
+    <column name="path" type="varchar" required="true" size="1024" />
+    <column name="sequence" type="integer" />
+    <column name="byte_size" type="bigint" />
+    <column name="checksum" type="varchar" size="255" />
+    <column name="checksum_type" type="varchar" size="50" />
+    <column name="parent_id" type="integer" />
+    <foreign-key foreignTable="digital_object" onDelete="cascade">
+      <reference local="parent_id" foreign="id" />
+    </foreign-key>
+    <index name="path">
+      <index-column name="path" size="768" />
+    </index>
+  </table>
+
+  <table name="event" isI18N="true" i18nTable="event_i18n">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="start_date" type="bu_date" />
+    <column name="start_time" type="time" />
+    <column name="end_date" type="bu_date" />
+    <column name="end_time" type="time" />
+    <column name="type_id" type="integer" required="true" />
+    <foreign-key foreignTable="term" onDelete="cascade">
+      <reference local="type_id" foreign="id" />
+    </foreign-key>
+    <column name="object_id" type="integer" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="object_id" foreign="id" />
+    </foreign-key>
+    <column name="actor_id" type="integer" />
+    <foreign-key foreignTable="actor" onDelete="setnull">
+      <reference local="actor_id" foreign="id" />
+    </foreign-key>
+    <column name="source_culture" required="true" size="16" type="varchar" />
+  </table>
+
+  <table name="event_i18n">
+    <column name="name" type="varchar" size="1024" />
+    <column name="description" type="longvarchar" />
+    <column name="date" type="varchar" size="1024" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="event" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="function_object" isI18N="true" i18nTable="function_object_i18n">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="type_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="type_id" foreign="id" />
+    </foreign-key>
+    <column name="description_status_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="description_status_id" foreign="id" />
+    </foreign-key>
+    <column name="description_detail_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="description_detail_id" foreign="id" />
+    </foreign-key>
+    <column name="description_identifier" type="varchar" size="1024" />
+    <column name="source_standard" type="varchar" size="1024" />
+    <column name="source_culture" required="true" size="16" type="varchar" />
+  </table>
+
+  <table name="function_object_i18n">
+    <column name="authorized_form_of_name" type="varchar" size="1024" />
+    <column name="classification" type="varchar" size="1024" />
+    <column name="dates" type="varchar" size="1024" />
+    <column name="description" type="longvarchar" />
+    <column name="history" type="longvarchar" />
+    <column name="legislation" type="longvarchar" />
+    <column name="institution_identifier" type="longvarchar" />
+    <column name="revision_history" type="longvarchar" />
+    <column name="rules" type="longvarchar" />
+    <column name="sources" type="longvarchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="function_object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="information_object" isI18N="true" i18nTable="information_object_i18n">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="identifier" type="varchar" size="1024" />
+    <column name="oai_local_identifier" type="integer" required="true" autoIncrement="true" />
+    <unique>
+      <unique-column name="oai_local_identifier" />
+    </unique>
+    <column name="level_of_description_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="level_of_description_id" foreign="id" />
+    </foreign-key>
+    <column name="collection_type_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="collection_type_id" foreign="id" />
+    </foreign-key>
+    <column name="repository_id" type="integer" />
+    <foreign-key foreignTable="repository" onDelete="setnull">
+      <reference local="repository_id" foreign="id" />
+    </foreign-key>
+    <column name="parent_id" type="integer" />
+    <foreign-key foreignTable="information_object" onDelete="cascade">
+      <reference local="parent_id" foreign="id" />
+    </foreign-key>
+    <column name="description_status_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="description_status_id" foreign="id" />
+    </foreign-key>
+    <column name="description_detail_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="description_detail_id" foreign="id" />
+    </foreign-key>
+    <column name="description_identifier" type="varchar" size="1024" />
+    <column name="source_standard" type="varchar" size="1024" />
+    <column name="display_standard_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="display_standard_id" foreign="id" />
+    </foreign-key>
+    <column name="lft" type="integer" nestedSetLeftKey="1" />
+    <column name="rgt" type="integer" nestedSetRightKey="1" />
+    <column name="source_culture" required="true" size="16" type="varchar" />
+    <index name="lft">
+      <index-column name="lft" />
+    </index>
+    <index name="rgt">
+      <index-column name="rgt" />
+    </index>
+  </table>
+
+  <table name="information_object_i18n">
+    <column name="title" type="varchar" size="1024" />
+    <column name="alternate_title" type="varchar" size="1024" />
+    <column name="edition" type="varchar" size="1024" />
+    <column name="extent_and_medium" type="longvarchar" />
+    <column name="archival_history" type="longvarchar" />
+    <column name="acquisition" type="longvarchar" />
+    <column name="scope_and_content" type="longvarchar" />
+    <column name="appraisal" type="longvarchar" />
+    <column name="accruals" type="longvarchar" />
+    <column name="arrangement" type="longvarchar" />
+    <column name="access_conditions" type="longvarchar" />
+    <column name="reproduction_conditions" type="longvarchar" />
+    <column name="physical_characteristics" type="longvarchar" />
+    <column name="finding_aids" type="longvarchar" />
+    <column name="location_of_originals" type="longvarchar" />
+    <column name="location_of_copies" type="longvarchar" />
+    <column name="related_units_of_description" type="longvarchar" />
+    <column name="institution_responsible_identifier" type="varchar" size="1024" />
+    <column name="rules" type="longvarchar" />
+    <column name="sources" type="longvarchar" />
+    <column name="revision_history" type="longvarchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="information_object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="keymap">
+    <column name="source_id" type="longvarchar" />
+    <column name="target_id" type="integer" />
+    <column name="source_name" type="longvarchar" />
+    <column name="target_name" type="longvarchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="serial_number" required="true" type="integer" default="0" />
+  </table>
+
+  <table name="menu" isI18N="true" i18nTable="menu_i18n">
+    <column name="parent_id" type="integer" />
+    <foreign-key foreignTable="menu" onDelete="cascade">
+      <reference local="parent_id" foreign="id" />
+    </foreign-key>
+    <column name="name" type="varchar" size="255" />
+    <column name="path" type="varchar" size="255" />
+    <column name="lft" type="integer" nestedSetLeftKey="1" />
+    <column name="rgt" type="integer" nestedSetRightKey="1" />
+    <column name="created_at" required="true" type="timestamp" />
+    <column name="updated_at" required="true" type="timestamp" />
+    <column name="source_culture" required="true" size="16" type="varchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="serial_number" required="true" type="integer" default="0" />
+  </table>
+
+  <table name="menu_i18n">
+    <column name="label" type="varchar" size="255" />
+    <column name="description" type="longvarchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="menu" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="note" isI18N="true" i18nTable="note_i18n">
+    <column name="object_id" type="integer" required="true" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="object_id" foreign="id" />
+    </foreign-key>
+    <column name="type_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="type_id" foreign="id" />
+    </foreign-key>
+    <column name="scope" type="varchar" size="1024" />
+    <column name="user_id" type="integer" />
+    <foreign-key foreignTable="user" onDelete="setnull">
+      <reference local="user_id" foreign="id" />
+    </foreign-key>
+    <column name="source_culture" required="true" size="16" type="varchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="serial_number" required="true" type="integer" default="0" />
+  </table>
+
+  <table name="note_i18n">
+    <column name="content" type="longvarchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="note" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="oai_harvest">
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="oai_repository_id" type="integer" required="true" />
+    <foreign-key foreignTable="oai_repository" onDelete="cascade">
+      <reference local="oai_repository_id" foreign="id" />
+    </foreign-key>
+    <column name="start_timestamp" type="timestamp" />
+    <column name="end_timestamp" type="timestamp" />
+    <column name="last_harvest" type="timestamp" />
+    <column name="last_harvest_attempt" type="timestamp" />
+    <column name="metadataPrefix" type="varchar" size="255" />
+    <column name="set" type="varchar" size="1024" />
+    <column name="created_at" required="true" type="timestamp" />
+    <column name="serial_number" required="true" type="integer" default="0" />
+  </table>
+
+  <table name="oai_repository">
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="name" type="varchar" size="1024" />
+    <column name="uri" type="varchar" size="1024" />
+    <column name="admin_email" type="varchar" size="255" />
+    <column name="earliest_timestamp" type="timestamp" />
+    <column name="created_at" required="true" type="timestamp" />
+    <column name="updated_at" required="true" type="timestamp" />
+    <column name="serial_number" required="true" type="integer" default="0" />
+  </table>
+
+  <table name="object">
+    <column name="class_name" type="varchar" size="255" />
+    <column name="created_at" required="true" type="timestamp" />
+    <column name="updated_at" required="true" type="timestamp" />
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="serial_number" required="true" type="integer" default="0" />
+  </table>
+
+  <table name="object_term_relation">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="object_id" type="integer" required="true" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="object_id" foreign="id" />
+    </foreign-key>
+    <column name="term_id" type="integer" required="true" />
+    <foreign-key foreignTable="term" onDelete="cascade">
+      <reference local="term_id" foreign="id" />
+    </foreign-key>
+    <column name="start_date" type="bu_date" />
+    <column name="end_date" type="bu_date" />
+  </table>
+
+  <table name="other_name" isI18N="true" i18nTable="other_name_i18n">
+    <column name="object_id" type="integer" required="true" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="object_id" foreign="id" />
+    </foreign-key>
+    <column name="type_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="type_id" foreign="id" />
+    </foreign-key>
+    <column name="start_date" type="bu_date" />
+    <column name="end_date" type="bu_date" />
+    <column name="source_culture" required="true" size="16" type="varchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="serial_number" required="true" type="integer" default="0" />
+  </table>
+
+  <table name="other_name_i18n">
+    <column name="name" type="varchar" size="1024" />
+    <column name="note" type="varchar" size="1024" />
+    <column name="dates" type="longvarchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="other_name" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="physical_object" isI18N="true" i18nTable="physical_object_i18n">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="type_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="type_id" foreign="id" />
+    </foreign-key>
+    <column name="source_culture" required="true" size="16" type="varchar" />
+  </table>
+
+  <table name="physical_object_i18n">
+    <column name="name" type="varchar" size="1024" />
+    <column name="description" type="longvarchar" />
+    <column name="location" type="longvarchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="physical_object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="premis_object">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="information_object_id" type="integer" />
+    <foreign-key foreignTable="information_object" onDelete="cascade">
+      <reference local="information_object_id" foreign="id" />
+    </foreign-key>
+    <column name="puid" type="varchar" size="255" />
+    <column name="filename" type="varchar" size="1024" />
+    <column name="last_modified" type="timestamp" />
+    <column name="date_ingested" type="bu_date" />
+    <column name="size" type="bigint" />
+    <column name="mime_type" type="varchar" size="255" />
+  </table>
+
+  <table name="property" isI18N="true" i18nTable="property_i18n">
+    <column name="object_id" type="integer" required="true" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="object_id" foreign="id" />
+    </foreign-key>
+    <column name="scope" type="varchar" size="1024" />
+    <column name="name" type="varchar" size="1024" />
+    <column name="source_culture" required="true" size="16" type="varchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="serial_number" required="true" type="integer" default="0" />
+  </table>
+
+  <table name="property_i18n">
+    <column name="value" type="longvarchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="property" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="relation" isI18N="true" i18nTable="relation_i18n">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="subject_id" type="integer" required="true" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="subject_id" foreign="id" />
+    </foreign-key>
+    <column name="object_id" type="integer" required="true" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="object_id" foreign="id" />
+    </foreign-key>
+    <column name="type_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="cascade">
+      <reference local="type_id" foreign="id" />
+    </foreign-key>
+    <column name="start_date" type="bu_date" />
+    <column name="end_date" type="bu_date" />
+    <column name="source_culture" required="true" size="16" type="varchar" />
+  </table>
+
+  <table name="relation_i18n">
+    <column name="description" type="longvarchar" />
+    <column name="date" type="varchar" size="1024" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="relation" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="repository" isI18N="true" i18nTable="repository_i18n">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="actor" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="identifier" type="varchar" size="1024" />
+    <column name="desc_status_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="desc_status_id" foreign="id" />
+    </foreign-key>
+    <column name="desc_detail_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="desc_detail_id" foreign="id" />
+    </foreign-key>
+    <column name="desc_identifier" type="varchar" size="1024" />
+    <column name="upload_limit" type="float" />
+    <column name="source_culture" required="true" size="16" type="varchar" />
+  </table>
+
+  <table name="repository_i18n">
+    <column name="geocultural_context" type="longvarchar" />
+    <column name="collecting_policies" type="longvarchar" />
+    <column name="buildings" type="longvarchar" />
+    <column name="holdings" type="longvarchar" />
+    <column name="finding_aids" type="longvarchar" />
+    <column name="opening_times" type="longvarchar" />
+    <column name="access_conditions" type="longvarchar" />
+    <column name="disabled_access" type="longvarchar" />
+    <column name="research_services" type="longvarchar" />
+    <column name="reproduction_services" type="longvarchar" />
+    <column name="public_facilities" type="longvarchar" />
+    <column name="desc_institution_identifier" type="varchar" size="1024" />
+    <column name="desc_rules" type="longvarchar" />
+    <column name="desc_sources" type="longvarchar" />
+    <column name="desc_revision_history" type="longvarchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="repository" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="rights" isI18N="true" i18nTable="rights_i18n">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="start_date" type="bu_date" />
+    <column name="end_date" type="bu_date" />
+    <column name="basis_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="basis_id" foreign="id" />
+    </foreign-key>
+    <column name="rights_holder_id" type="integer" />
+    <foreign-key foreignTable="actor" onDelete="setnull">
+      <reference local="rights_holder_id" foreign="id" />
+    </foreign-key>
+    <column name="copyright_status_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="copyright_status_id" foreign="id" />
+    </foreign-key>
+    <column name="copyright_status_date" type="bu_date" />
+    <column name="copyright_jurisdiction" type="varchar" size="1024" />
+    <column name="statute_determination_date" type="bu_date" />
+    <column name="statute_citation_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="statute_citation_id" foreign="id" />
+    </foreign-key>
+    <column name="source_culture" required="true" size="16" type="varchar" />
+  </table>
+
+  <table name="granted_right">
+    <column name="rights_id" type="integer" required="true" />
+    <foreign-key foreignTable="rights" onDelete="cascade">
+      <reference local="rights_id" foreign="id" />
+    </foreign-key>
+    <column name="act_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="setnull">
+      <reference local="act_id" foreign="id" />
+    </foreign-key>
+    <column name="restriction" type="boolean" default="1" />
+    <column name="start_date" type="bu_date" />
+    <column name="end_date" type="bu_date" />
+    <column name="notes" type="longvarchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="serial_number" required="true" type="integer" default="0" />
+  </table>
+
+  <table name="rights_i18n">
+    <column name="rights_note" type="longvarchar" />
+    <column name="copyright_note" type="longvarchar" />
+    <column name="identifier_value" type="longvarchar" />
+    <column name="identifier_type" type="longvarchar" />
+    <column name="identifier_role" type="longvarchar" />
+    <column name="license_terms" type="longvarchar" />
+    <column name="license_note" type="longvarchar" />
+    <column name="statute_jurisdiction" type="longvarchar" />
+    <column name="statute_note" type="longvarchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="rights" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="rights_holder">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="actor" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+  </table>
+
+  <table name="setting" isI18N="true" i18nTable="setting_i18n">
+    <column name="name" type="varchar" size="255" />
+    <column name="scope" type="varchar" size="255" />
+    <column name="editable" type="boolean" default="" />
+    <column name="deleteable" type="boolean" default="" />
+    <column name="source_culture" required="true" size="16" type="varchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="serial_number" required="true" type="integer" default="0" />
+  </table>
+
+  <table name="setting_i18n">
+    <column name="value" type="longvarchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="setting" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="slug">
+    <column name="object_id" type="integer" required="true" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="object_id" foreign="id" />
+    </foreign-key>
+    <unique>
+      <unique-column name="object_id" />
+    </unique>
+    <column name="slug" required="true" />
+    <unique>
+      <unique-column name="slug" />
+    </unique>
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="serial_number" required="true" type="integer" default="0" />
+  </table>
+
+  <table name="static_page" isI18N="true" i18nTable="static_page_i18n">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="source_culture" required="true" size="16" type="varchar" />
+  </table>
+
+  <table name="static_page_i18n">
+    <column name="title" type="varchar" size="1024" />
+    <column name="content" type="longvarchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="static_page" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="status">
+    <column name="object_id" type="integer" required="true" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="object_id" foreign="id" />
+    </foreign-key>
+    <column name="type_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="cascade">
+      <reference local="type_id" foreign="id" />
+    </foreign-key>
+    <column name="status_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="cascade">
+      <reference local="status_id" foreign="id" />
+    </foreign-key>
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="serial_number" required="true" type="integer" default="0" />
+  </table>
+
+  <table name="taxonomy" isI18N="true" i18nTable="taxonomy_i18n">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="usage" type="varchar" size="1024" />
+    <column name="parent_id" type="integer" />
+    <foreign-key foreignTable="taxonomy" onDelete="cascade">
+      <reference local="parent_id" foreign="id" />
+    </foreign-key>
+    <column name="source_culture" required="true" size="16" type="varchar" />
+  </table>
+
+  <table name="taxonomy_i18n">
+    <column name="name" type="varchar" size="1024" />
+    <column name="note" type="longvarchar" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="taxonomy" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="term" isI18N="true" i18nTable="term_i18n">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="object" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="taxonomy_id" type="integer" required="true" />
+    <foreign-key foreignTable="taxonomy" onDelete="cascade">
+      <reference local="taxonomy_id" foreign="id" />
+    </foreign-key>
+    <column name="code" type="varchar" size="1024" />
+    <column name="parent_id" type="integer" />
+    <foreign-key foreignTable="term" onDelete="cascade">
+      <reference local="parent_id" foreign="id" />
+    </foreign-key>
+    <column name="lft" type="integer" nestedSetLeftKey="1" />
+    <column name="rgt" type="integer" nestedSetRightKey="1" />
+    <column name="source_culture" required="true" size="16" type="varchar" />
+    <index name="lft">
+      <index-column name="lft" />
+    </index>
+  </table>
+
+  <table name="term_i18n">
+    <column name="name" type="varchar" size="1024" />
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="term" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="culture" isCulture="true" type="varchar" size="16" required="true" primaryKey="true" />
+  </table>
+
+  <table name="user">
+    <column name="id" type="integer" required="true" primaryKey="true" inheritanceKey="1" />
+    <foreign-key foreignTable="actor" onDelete="cascade">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <column name="username" type="varchar" size="255" />
+    <column name="email" type="varchar" size="255" />
+    <column name="password_hash" type="varchar" size="255" />
+    <column name="salt" type="varchar" size="255" />
+    <column name="active" type="boolean" default="1" />
+  </table>
+
+</database>

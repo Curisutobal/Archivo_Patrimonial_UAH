@@ -1,0 +1,54 @@
+# You can find more information about this file on the symfony website:
+# http://www.symfony-project.org/reference/1_4/en/13-View
+
+default:
+  http_metas:
+    # This is XHTML5 compatible but new declaration is: <meta charset="UTF-8">
+    content-type: text/html # Symfony appends the charset
+    X-UA-Compatible: IE=edge,chrome=1
+
+  metas:
+    title: AtoM
+    description: Access to memory - Open information management toolkit
+    viewport: initial-scale=1.0, user-scalable=no
+    # keywords: symfony, project
+    # language: en
+    # robots: index, follow
+
+  stylesheets:
+    # /plugins/sfDrupalPlugin/vendor/drupal/modules/system/system: { media: all, position: first }
+    # /plugins/sfDrupalPlugin/vendor/drupal/modules/system/system-behavior: { media: all, position: first }
+    # /plugins/sfDrupalPlugin/vendor/drupal/modules/system/system-menus: { media: all, position: first }
+    # /plugins/sfDrupalPlugin/vendor/drupal/themes/garland/style: { media: all, position: first }
+    # /plugins/sfDrupalPlugin/vendor/drupal/themes/garland/print: { media: print, position: first }
+    # form:
+    # graphic:
+    # main:
+    # print: { media: print, position: last }
+
+  javascripts:
+    /vendor/jquery:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/drupal:
+    /vendor/yui/yahoo-dom-event/yahoo-dom-event:
+    /vendor/yui/element/element-min:
+    /vendor/yui/button/button-min:
+    /vendor/modernizr:
+    /vendor/jquery-ui/jquery-ui.min.js:
+    /vendor/jquery.expander.js:
+    /vendor/jquery.masonry.js:
+    /vendor/jquery.imagesloaded.js:
+    /vendor/bootstrap/js/bootstrap:
+    /vendor/URI.js:
+    /vendor/meetselva/attrchange:
+    qubit:
+    treeView:
+    clipboard:
+    dominion: { position: last }
+
+  has_layout:     true
+  layout:         layout
+
+  components:
+    css:          []
+    header:       []
+    footer:       []

@@ -1,0 +1,24 @@
+browseSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/tableheader:
+    advancedRepositoryFilters.js:
+
+listSuccess:
+  javascripts:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/tableheader:
+
+editThemeSuccess:
+  stylesheets:
+    /vendor/jquery-miniColors/jquery.miniColors.css:
+  javascripts:
+    /vendor/jquery-miniColors/jquery.miniColors.js:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/collapse:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/form:
+    /plugins/sfDrupalPlugin/vendor/drupal/misc/textarea:
+    blank:
+    description:
+
+all:
+  components:
+    css:
+      [repository, stylesheet]

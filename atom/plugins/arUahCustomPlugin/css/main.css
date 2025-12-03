@@ -1,0 +1,423 @@
+/* Estilos personalizados para Archivo Patrimonial UAH */
+
+/* ============================================
+   HEADER Y NAVBAR
+   ============================================ */
+
+/* Header principal con logo UAH */
+#top-bar {
+  background-color: #2c3e50 !important;
+  padding: 0.5rem 0;
+}
+
+#top-bar .navbar-brand {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: white !important;
+}
+
+#top-bar .navbar-brand img {
+  height: 50px;
+  margin-right: 15px;
+}
+
+/* Banner informativo debajo del header */
+.info-banner {
+  background-color: #34495e;
+  color: white;
+  padding: 15px 0;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+/* ============================================
+   PÁGINA DE INICIO
+   ============================================ */
+
+/* Título principal */
+h1.page-title {
+  font-size: 2.5rem;
+  font-weight: 300;
+  color: #2c3e50;
+  margin-bottom: 2rem;
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 1rem;
+}
+
+/* Contenido principal de la página de inicio */
+.homepage-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.homepage-content p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #34495e;
+  margin-bottom: 1.5rem;
+}
+
+/* Lista de fondos */
+.fondos-list {
+  margin-top: 2rem;
+}
+
+.fondos-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.fondos-list li {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #ecf0f1;
+  border-left: 4px solid #3498db;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.fondos-list li:hover {
+  background-color: #d5dbdb;
+  border-left-color: #2980b9;
+  transform: translateX(5px);
+}
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+
+#sidebar {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+}
+
+#sidebar h2, #sidebar h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #3498db;
+}
+
+#sidebar .list-group-item {
+  border: none;
+  border-left: 3px solid transparent;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  background-color: white;
+  transition: all 0.3s ease;
+}
+
+#sidebar .list-group-item:hover {
+  border-left-color: #3498db;
+  background-color: #ecf0f1;
+  transform: translateX(3px);
+}
+
+/* Sección "Más popular" */
+#popular-this-week .list-group-item {
+  font-size: 0.9rem;
+}
+
+#popular-this-week .badge {
+  background-color: #3498db;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+#site-footer {
+  background-color: #2c3e50 !important;
+  color: white;
+  padding: 3rem 0 2rem 0;
+  margin-top: 4rem;
+}
+
+#site-footer p {
+  color: white !important;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+#site-footer a {
+  color: #3498db;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+#site-footer a:hover {
+  color: #5dade2;
+  text-decoration: underline;
+}
+
+/* Redes sociales en el footer */
+.social-media-footer {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 2rem;
+}
+
+.social-media-footer a {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  background-color: #34495e;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 40px;
+  transition: all 0.3s ease;
+}
+
+.social-media-footer a:hover {
+  background-color: #3498db;
+  transform: scale(1.1);
+}
+
+.social-media-footer img {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+}
+
+/* Logo UAH en footer */
+.footer-logo {
+  max-width: 200px;
+  margin-bottom: 1.5rem;
+}
+
+.footer-accreditation {
+  max-width: 150px;
+  float: right;
+}
+
+/* ============================================
+   BOTONES Y ELEMENTOS INTERACTIVOS
+   ============================================ */
+
+.btn-primary {
+  background-color: #3498db;
+  border-color: #3498db;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #2980b9;
+  border-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.btn-secondary {
+  background-color: #95a5a6;
+  border-color: #95a5a6;
+}
+
+.btn-secondary:hover {
+  background-color: #7f8c8d;
+  border-color: #7f8c8d;
+}
+
+/* ============================================
+   BÚSQUEDA
+   ============================================ */
+
+#search-form-wrapper {
+  background-color: #34495e;
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+#search-form-wrapper input[type="text"] {
+  border: none;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border-radius: 4px 0 0 4px;
+}
+
+#search-form-wrapper button {
+  background-color: #3498db;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0 4px 4px 0;
+  transition: background-color 0.3s ease;
+}
+
+#search-form-wrapper button:hover {
+  background-color: #2980b9;
+}
+
+/* ============================================
+   NAVEGACIÓN
+   ============================================ */
+
+.nav-tabs {
+  border-bottom: 2px solid #3498db;
+}
+
+.nav-tabs .nav-link {
+  color: #2c3e50;
+  border: none;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+  border-bottom-color: #3498db;
+  background-color: transparent;
+}
+
+.nav-tabs .nav-link.active {
+  color: #3498db;
+  border-bottom-color: #3498db;
+  background-color: transparent;
+  font-weight: 600;
+}
+
+/* ============================================
+   TARJETAS DE DOCUMENTOS
+   ============================================ */
+
+.card {
+  border: 1px solid #ecf0f1;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transform: translateY(-5px);
+}
+
+.card-header {
+  background-color: #3498db;
+  color: white;
+  font-weight: 600;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+/* ============================================
+   BREADCRUMBS
+   ============================================ */
+
+.breadcrumb {
+  background-color: #ecf0f1;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+  content: "›";
+  color: #7f8c8d;
+}
+
+.breadcrumb-item a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+  color: #2980b9;
+  text-decoration: underline;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  h1.page-title {
+    font-size: 1.8rem;
+  }
+  
+  .homepage-content {
+    padding: 1rem;
+  }
+  
+  #sidebar {
+    margin-top: 2rem;
+  }
+  
+  .footer-accreditation {
+    float: none;
+    margin-top: 1rem;
+  }
+}
+
+/* ============================================
+   UTILIDADES
+   ============================================ */
+
+.text-uah-blue {
+  color: #3498db !important;
+}
+
+.bg-uah-blue {
+  background-color: #3498db !important;
+}
+
+.text-uah-dark {
+  color: #2c3e50 !important;
+}
+
+.bg-uah-dark {
+  background-color: #2c3e50 !important;
+}
+
+.border-uah-blue {
+  border-color: #3498db !important;
+}
+
+/* ============================================
+   ANIMACIONES
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* ============================================
+   MEJORAS DE ACCESIBILIDAD
+   ============================================ */
+
+a:focus, button:focus, input:focus {
+  outline: 2px solid #3498db;
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border-width: 0;
+}

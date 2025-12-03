@@ -1,0 +1,11 @@
+all:
+  propel:
+    class: sfPropelDatabase
+    param:
+      classname: PropelPDO
+      dsn: 'mysql:host=db;port=3306;dbname=atom'
+      username: atom
+      password: atom_pass
+      encoding: utf8
+      persistent: true
+      pooling: true

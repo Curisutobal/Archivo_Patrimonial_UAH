@@ -1,0 +1,21 @@
+autoload:
+
+  plugins_actions:
+    path: %SF_PLUGINS_DIR%/*/modules/*/actions
+
+  actions:
+    path: %SF_APP_DIR%/modules/*/actions
+
+  net_gearman:
+    path: %SF_ROOT_DIR%/vendor/net_gearman/Net/Gearman
+    recursive: on
+
+  fbiso639:
+    path: %SF_ROOT_DIR%/vendor/FreeBeerIso639Map.php
+
+  EasyRdf:
+    path: %SF_ROOT_DIR%/vendor/easyrdf/EasyRdf
+    recursive: on
+
+  ParseDown:
+    path: %SF_ROOT_DIR%/vendor/parsedown

@@ -1,0 +1,45 @@
+# Entorno virtual de Python
+/.venv
+venv/
+
+# Carpetas de cache de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos de configuración de VSCode
+.vscode/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Framework ATOM (Symfony)
+/atomS  
+
+# Entorno y cachés sensibles
+.env
+chatbot/.env
+*.pkl
+chatbot/embeddings_cache.pkl
+
+# Dependencias y cache pesados (no subir a GitHub)
+atom/vendor/
+atom/cache/
+atom/log/
+node_modules/
+*.log
+
+# Archivos temporales
+*.tmp
+*.swp
+*~
+
+# Environment secrets
+.env
+chatbot/.env
+
+# Cache and generated data
+*.pkl
+chatbot/embeddings_cache.pkl

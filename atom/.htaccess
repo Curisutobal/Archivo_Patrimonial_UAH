@@ -1,0 +1,45 @@
+# Symfony .htaccess for AtoM
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Uncomment the following line if you are using Apache's
+  # mod_alias to redirect the DocumentRoot to the symfony
+  # web directory (where this .htaccess file is located)
+  #RewriteBase /
+
+  # We check if the .html version is here (caching)
+  RewriteRule ^$ index.html [QSA]
+  RewriteRule ^([^.]+)$ $1.html [QSA]
+  RewriteCond %{REQUEST_FILENAME} !-f
+
+  # No, so we redirect to our front web controller
+  RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+# Prevent access to .git directories
+<IfModule mod_rewrite.c>
+  RewriteRule ^(.*/)?\.git/ - [F,L]
+  RedirectMatch 404 /\.git
+</IfModule>
+
+# Set proper MIME types for CSS and JS files
+<IfModule mod_mime.c>
+  AddType text/css .css
+  AddType application/javascript .js
+</IfModule>
+
+# Enable compression for text files
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript application/json
+</IfModule>
+
+# Set cache headers for static assets
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpg "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/gif "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+</IfModule>

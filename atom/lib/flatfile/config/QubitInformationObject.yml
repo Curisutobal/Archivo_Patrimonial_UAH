@@ -1,0 +1,185 @@
+# All columns that can be either imported or exported
+columnNames:
+  - legacyId
+  - parentId
+  - qubitParentSlug
+  - accessionNumber
+  - title
+  - radGeneralMaterialDesignation
+  - alternateTitle
+  - radOtherTitleInformation
+  - radTitleStatementOfResponsibility
+  - radTitleStatementOfResponsibilityNote
+  - radTitleAttributionsAndConjectures
+  - radTitleContinues
+  - radTitleSourceOfTitleProper
+  - radTitleVariationsInTitle
+  - radTitleParallelTitles
+  - levelOfDescription
+  - repository
+  - identifier
+  - radEdition
+  - radEditionStatementOfResponsibility
+  - radStatementOfScaleCartographic
+  - radStatementOfProjection
+  - radStatementOfCoordinates
+  - radStatementOfScaleArchitectural
+  - radIssuingJurisdiction
+  - extentAndMedium
+  - radTitleProperOfPublishersSeries
+  - radParallelTitlesOfPublishersSeries
+  - radOtherTitleInformationOfPublishersSeries
+  - radStatementOfResponsibilityRelatingToPublishersSeries
+  - radNumberingWithinPublishersSeries
+  - radPublishersSeriesNote
+  - radNoteOnPublishersSeries
+  - archivalHistory
+  - scopeAndContent
+  - physicalCharacteristics
+  - acquisition
+  - arrangement
+  - language
+  - script
+  - languageNote
+  - locationOfOriginals
+  - locationOfCopies
+  - accessConditions
+  - reproductionConditions
+  - findingAids
+  - relatedUnitsOfDescription
+  - accruals
+  - radNoteAccompanyingMaterial
+  - radNoteAlphaNumericDesignation
+  - radNoteConservation
+  - radNoteEdition
+  - radNotePhysicalDescription
+  - radNotePublishersSeries
+  - radNoteRights
+  - radStandardNumber
+  - subjectAccessPoints
+  - placeAccessPoints
+  - nameAccessPoints
+  - genreAccessPoints
+  - descriptionIdentifier
+  - institutionIdentifier
+  - rules
+  - descriptionStatus
+  - levelOfDetail
+  - revisionHistory
+  - languageOfDescription
+  - scriptOfDescription
+  - sources
+  - publicationStatus
+  - digitalObjectURI
+  - digitalObjectChecksum
+  - generalNote
+  - appraisal
+  - physicalObjectName
+  - physicalObjectLocation
+  - physicalObjectType
+  - alternativeIdentifiers
+  - alternativeIdentifierLabels
+  - eventDates
+  - eventTypes
+  - eventStartDates
+  - eventEndDates
+  - eventDescriptions
+  - eventActors
+  - eventActorHistories
+  - eventPlaces
+  - publicationNote
+  - archivistNote
+  - culture
+
+# Columns that map directly to information object properties
+direct:
+  - updatedAt
+  - createdAt
+  - accessConditions
+  - accruals
+  - acquisition
+  - alternateTitle
+  - appraisal
+  - archivalHistory
+  - arrangement
+  - culture
+  - descriptionIdentifier
+  - extentAndMedium
+  - findingAids
+  - identifier
+  - locationOfCopies
+  - locationOfOriginals
+  - physicalCharacteristics
+  - relatedUnitsOfDescription
+  - reproductionConditions
+  - revisionHistory
+  - rules
+  - scopeAndContent
+  - sources
+  - title
+  - language
+  - script
+  - languageOfDescription
+  - scriptOfDescription
+
+# Columns that map to information object properties
+map:
+  id:                                legacyId
+  institutionResponsibleIdentifier:  institutionIdentifier
+
+# Columns that map to QubitProperty values
+property:
+  radOtherTitleInformation:                                otherTitleInformation
+  radTitleStatementOfResponsibility:                       titleStatementOfResponsibility
+  radStatementOfProjection:                                statementOfProjection
+  radStatementOfCoordinates:                               statementOfCoordinates
+  radStatementOfScaleArchitectural:                        statementOfScaleArchitectural
+  radStatementOfScaleCartographic:                         statementOfScaleCartographic
+  radPublishersSeriesNote:                                 noteOnPublishersSeries
+  radIssuingJurisdiction:                                  issuingJurisdictionAndDenomination
+  radEditionStatementOfResponsibility:                     editionStatementOfResponsibility
+  radTitleProperOfPublishersSeries:                        titleProperOfPublishersSeries
+  radParallelTitlesOfPublishersSeries:                     parallelTitleOfPublishersSeries
+  radOtherTitleInformationOfPublishersSeries:              otherTitleInformationOfPublishersSeries
+  radStatementOfResponsibilityRelatingToPublishersSeries:  statementOfResponsibilityRelatingToPublishersSeries
+  radNumberingWithinPublishersSeries:                      numberingWithinPublishersSeries
+  radStandardNumber:                                       standardNumber
+
+# Columns that map to notes of various types
+note:
+  common:
+    languageNote:                           Language note
+    publicationNote:                        Publication note
+    generalNote:                            General note
+    archivistNote:                          Archivist's note
+  rad:
+    radNoteCast:                            Cast note
+    radNoteCredits:                         Credits note
+    radNoteSignaturesInscriptions:          Signatures note
+    radNoteConservation:                    Conservation
+    radNotePhysicalDescription:             Physical description
+    radNotePublishersSeries:                Publisher's series
+    radNoteRights:                          Rights
+    radNoteAccompanyingMaterial:            Accompanying material
+    radNoteAlphaNumericDesignation:         Alpha-numeric designations
+    radNoteEdition:                         Edition
+  title:
+    radTitleStatementOfResponsibilityNote:  Statements of responsibility
+    radTitleParallelTitles:                 Parallel titles and other title information
+    radTitleSourceOfTitleProper:            Source of title proper
+    radTitleVariationsInTitle:              Variations in title
+    radTitleAttributionsAndConjectures:     Attributions and conjectures
+    radTitleContinues:                      Continuation of title
+    radTitleNoteContinuationOfTitle:        Continuation of title
+
+# Taxonomies related to the resource type, values will be referred to in resource-specific
+# CSV row modification logic
+cacheTaxonomies:
+  commonNoteTypeIds:        NOTE_TYPE_ID
+  radNoteTypeIds:           RAD_NOTE_ID
+  titleNoteTypeIds:         RAD_TITLE_NOTE_ID
+  levelOfDescriptionTerms:  LEVEL_OF_DESCRIPTION_ID
+  levelOfDetailTerms:       DESCRIPTION_DETAIL_LEVEL_ID
+  descriptionStatusTerms:   DESCRIPTION_STATUS_ID
+  eventTypeTerms:           EVENT_TYPE_ID
+  physicalObjectTypes:      PHYSICAL_OBJECT_TYPE_ID

@@ -1,0 +1,61 @@
+# You can find more information about this file on the symfony website:
+# http://www.symfony-project.org/reference/1_4/en/11-App
+
+all:
+
+  # Upload limit (in gigabytes), possible values:
+  #  Zero              => Uploads forbidden
+  #  Negative integer  => Unlimited uploads
+  #  Positive integer  => Number of gigabytes
+  upload_limit: -1
+
+  # Timeout for fetching digital objects from external services, in seconds
+  download_timeout: 10
+
+  # Use sfMemcacheCache if you want a distributed cache.
+  # sfAPCCache works with both APC and APCu
+  cache_engine: sfAPCCache
+
+  # Enable read only mode. This setting may be overwritten
+  # by and environment variable called "ATOM_READ_ONLY"
+  read_only: false
+
+  # Google Analitycs:
+  # Set a GA property API key to track page view hits.
+  # E.g.: UA-1234567-89
+  google_analytics_api_key:
+  # Set a GA custom dimension index numver (from the same property)
+  # to track the repository name as a dimension in page view hits
+  # of IOs, actors and repos index pages.
+  # E.g.: 1
+  google_analytics_institutions_dimension_index:
+  # Set a Google Tag Manager container ID
+  # E.g.: GTM-1234
+  google_tag_manager_container_id:
+
+  # htmlpurifier is used in static pages, disabled by default
+  htmlpurifier_enabled: false
+
+  # Specify a CSV Transform script that can be automatically applied from
+  # the CSV Import Page in AtoM
+  # csv_transform_script_name: /full/path/to/transformscript
+
+  # The workers_key is concatenated alongside the project folder absolute path
+  # to generate an unique hash that is used to associate the worker(s) abilities
+  # with the corresponding AtoM instance. The workers_key will normally be empty,
+  # unless multiple AtoM instances running on the same path are connected to the
+  # same Gearman server, in which case, each instance's workers_key must be set
+  # to a different string value to make sure the proper workers take the job for
+  # their related instance.
+  workers_key:
+
+  # Specify password_hash algorithm constant
+  # See: https://www.php.net/manual/en/password.constants.php
+  password_hash_algorithm: PASSWORD_ARGON2I
+
+  # Specify password_hash algorithm options (as JSON)
+  # See: https://www.php.net/manual/en/function.password-hash.php
+  password_hash_algorithm_options: {"memory_cost": "2048", "time_cost": "4", "threads": "3"}
+
+  # Maximum allowed value for full-width treeview "items per page" setting
+  treeview_items_per_page_max: 10000

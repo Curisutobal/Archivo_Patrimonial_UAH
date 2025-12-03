@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Chatbot Archivo Patrimonial UAH</title>
+    <style>
+        * { box-sizing: border-box; }
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #007cba;
+            text-align: center;
+        }
+        
+        p { line-height: 1.6; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 10px; }
+        
+        /* Chatbot styles */
+        #chatbot-container {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            z-index: 10000;
+            font-family: Arial, sans-serif;
+        }
+        
+        #chatbot-header {
+            background: #007cba;
+            color: white;
+            padding: 10px;
+            border-radius: 10px 10px 0 0;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #chatbot-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 25px;
+            height: 25px;
+        }
+        
+        #chatbot-messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #chatbot-input {
+            padding: 10px;
+            border-top: 1px solid #ccc;
+            display: flex;
+            gap: 5px;
+        }
+        
+        #chatbot-user-input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        
+        #chatbot-send {
+            padding: 8px 15px;
+            background: #007cba;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        #chatbot-send:hover {
+            background: #005a8c;
+        }
+        
+        #chatbot-send:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        #chatbot-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: #007cba;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+        
+        #chatbot-icon:hover {
+            transform: scale(1.1);
+        }
+        
+        .message {
+            margin: 8px 0;
+            padding: 10px 12px;
+            border-radius: 8px;
+            max-width: 85%;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            background: #007cba;
+            color: white;
+            align-self: flex-end;
+            text-align: right;
+        }
+        
+        .bot-message {
+            background: white;
+            color: #333;
+            border: 1px solid #ddd;
+            align-self: flex-start;
+        }
+        
+        .bot-message a {
+            color: #007cba;
+            text-decoration: underline;
+        }
+        
+        .loading {
+            color: #666;
+            font-style: italic;
+            align-self: flex-start;
+        }
+        
+        .error-message {
+            background: #ffe6e6;
+            color: #cc0000;
+            border: 1px solid #ff9999;
+            padding: 10px;
+            border-radius: 5px;
+            align-self: flex-start;
+        }
+        
+        .welcome-message {
+            text-align: center;
+            color: #666;
+            margin: auto;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Archivo Patrimonial Universidad Alberto Hurtado</h1>
+        <p>La plataforma Archivo Patrimonial pone a disposición del público en libre acceso, una selección de documentos con el objeto de acercar a los ciudadanos al patrimonio cultural y la memoria colectiva de nuestro país.</p>
+        <p>A través de este portal, usted puede encontrar los siguientes fondos documentales:</p>
+        <ul>
+            <li><strong>Patricio Aylwin Azócar (1990-1994)</strong> - Documentos del primer presidente de la Concertación</li>
+            <li><strong>Fotografías del Programa Padres e Hijos (1974-1976)</strong> - Imágenes del programa social durante la dictadura</li>
+            <li><strong>Volantes Políticos (1973-1990)</strong> - Material de propaganda política de la época</li>
+            <li><strong>Iglesias y Dictadura (1973-1990)</strong> - Documentos sobre el rol de la iglesia durante el régimen militar</li>
+            <li><strong>Música Docta chilena</strong> - Colección de partituras y documentos musicales</li>
+        </ul>
+        <p>Haz clic en el ícono del chatbot para hacer preguntas sobre el archivo.</p>
+    </div>
+
+    <!-- Chatbot -->
+    <div id="chatbot-container">
+        <div id="chatbot-header">
+            <span>🤖 Chatbot Archivo UAH</span>
+            <button id="chatbot-close">×</button>
+        </div>
+        <div id="chatbot-messages">
+            <div class="welcome-message">
+                ¡Hola! Soy el chatbot del Archivo Patrimonial UAH.<br><br>
+                ¿En qué puedo ayudarte?
+            </div>
+        </div>
+        <div id="chatbot-input">
+            <input type="text" id="chatbot-user-input" placeholder="Escribe tu pregunta...">
+            <button id="chatbot-send">Enviar</button>
+        </div>
+    </div>
+
+    <div id="chatbot-icon">
+        <span style="color: white; font-size: 24px;">🤖</span>
+    </div>
+
+    <script>
+        console.log('🚀 Chatbot script iniciado');
+        
+        // Chatbot functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ DOM cargado completamente');
+            
+            const chatbotIcon = document.getElementById('chatbot-icon');
+            const chatbotContainer = document.getElementById('chatbot-container');
+            const chatbotClose = document.getElementById('chatbot-close');
+            const chatbotSend = document.getElementById('chatbot-send');
+            const chatbotInput = document.getElementById('chatbot-user-input');
+            const chatbotMessages = document.getElementById('chatbot-messages');
+
+            // Toggle chatbot visibility
+            chatbotIcon.addEventListener('click', function() {
+                console.log('👆 Click en icono chatbot');
+                const isVisible = chatbotContainer.style.display === 'block';
+                chatbotContainer.style.display = isVisible ? 'none' : 'block';
+                chatbotIcon.style.display = isVisible ? 'flex' : 'none';
+            });
+
+            // Close chatbot
+            chatbotClose.addEventListener('click', function() {
+                console.log('❌ Cerrando chatbot');
+                chatbotContainer.style.display = 'none';
+                chatbotIcon.style.display = 'flex';
+            });
+
+            // Send message function
+            function sendMessage() {
+                const message = chatbotInput.value.trim();
+                
+                if (!message) {
+                    console.warn('⚠️ Mensaje vacío, no se envía');
+                    return;
+                }
+
+                console.log('📤 Enviando mensaje:', message);
+
+                // Add user message
+                addMessage(message, 'user');
+                chatbotInput.value = '';
+
+                // Disable controls while processing
+                chatbotSend.disabled = true;
+                chatbotInput.disabled = true;
+
+                // Show loading indicator
+                const loadingMsg = addMessage('Procesando tu consulta...', 'loading');
+
+                // IMPORTANTE: Usar /api/chat (ruta relativa con proxy de Nginx)
+                const apiUrl = '/api/chat';
+                console.log('🌐 Enviando POST a:', apiUrl);
+
+                fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        query: message 
+                    })
+                })
+                .then(response => {
+                    console.log('📨 Response status:', response.status);
+                    console.log('📨 Response headers:', response.headers);
+                    
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            console.error('❌ Error response:', err);
+                            throw new Error(err.error || err.details || `HTTP ${response.status}`);
+                        }).catch(() => {
+                            throw new Error(`HTTP error ${response.status}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('✅ Response data:', data);
+                    
+                    // Remove loading message
+                    if (loadingMsg && loadingMsg.parentNode) {
+                        loadingMsg.remove();
+                    }
+                    
+                    if (data.success && data.response) {
+                        addMessage(data.response, 'bot', true);
+                    } else if (data.response) {
+                        addMessage(data.response, 'bot', true);
+                    } else {
+                        addMessage('Lo siento, no pude procesar tu consulta.', 'bot');
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error completo:', error);
+                    
+                    // Remove loading message
+                    if (loadingMsg && loadingMsg.parentNode) {
+                        loadingMsg.remove();
+                    }
+                    
+                    addMessage(
+                        `Error: ${error.message}. Por favor, verifica que el servidor esté funcionando.`,
+                        'error'
+                    );
+                })
+                .finally(() => {
+                    // Re-enable controls
+                    chatbotSend.disabled = false;
+                    chatbotInput.disabled = false;
+                    chatbotInput.focus();
+                });
+            }
+
+            // Add message to chat
+            function addMessage(text, type, isHtml = false) {
+                const messageDiv = document.createElement('div');
+                
+                if (type === 'loading') {
+                    messageDiv.className = 'message loading';
+                } else if (type === 'error') {
+                    messageDiv.className = 'message error-message';
+                } else if (type === 'user') {
+                    messageDiv.className = 'message user-message';
+                } else {
+                    messageDiv.className = 'message bot-message';
+                }
+                
+                if (isHtml) {
+                    messageDiv.innerHTML = text;
+                } else {
+                    messageDiv.textContent = text;
+                }
+                
+                chatbotMessages.appendChild(messageDiv);
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+                
+                return messageDiv;
+            }
+
+            // Send on button click
+            chatbotSend.addEventListener('click', function() {
+                console.log('🖱️ Click en botón enviar');
+                sendMessage();
+            });
+
+            // Send on Enter key
+            chatbotInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !chatbotSend.disabled) {
+                    console.log('⌨️ Enter presionado');
+                    sendMessage();
+                }
+            });
+
+            // Make chatbot draggable
+            let isDragging = false;
+            let dragOffset = { x: 0, y: 0 };
+
+            document.getElementById('chatbot-header').addEventListener('mousedown', function(e) {
+                if (e.target.id !== 'chatbot-close') {
+                    isDragging = true;
+                    dragOffset.x = e.clientX - chatbotContainer.offsetLeft;
+                    dragOffset.y = e.clientY - chatbotContainer.offsetTop;
+                }
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (isDragging) {
+                    chatbotContainer.style.left = (e.clientX - dragOffset.x) + 'px';
+                    chatbotContainer.style.top = (e.clientY - dragOffset.y) + 'px';
+                    chatbotContainer.style.right = 'auto';
+                    chatbotContainer.style.bottom = 'auto';
+                }
+            });
+
+            document.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+            
+            console.log('✅ Chatbot inicializado correctamente');
+        });
+    </script>
+</body>
+</html>
