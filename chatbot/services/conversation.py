@@ -2,27 +2,99 @@
 Servicio de conversación multi-turno para el chatbot
 Mantiene historial de búsquedas, detecta intención del usuario,
 extrae entidades y ramifica la lógica según el contexto
+
+Principios SOLID implementados:
+- SRP: Cada clase tiene una responsabilidad única
+- OCP: Extensible mediante estrategias base (IntentionStrategy, EntityStrategy)
+- ISP: Interfaces pequeñas y específicas
+- DIP: Inyección de dependencias
+
+Patrones de Diseño:
+- Strategy Pattern: Estrategias intercambiables para detección
+- Decorator Pattern: Metadata envolviendo resultados de búsqueda
+- Factory Pattern: ConversationManager como factory
 """
 
 import re
+from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 from collections import defaultdict
 
 
+# ============================================================================
+# ABSTRACCIONES (OCP + DIP): Permitir extensión sin modificación
+# ============================================================================
+
+class IntentionStrategy(ABC):
+    """Abstracción para estrategias de detección de intención (Strategy Pattern)
+    
+    Principio OCP: Open/Closed - Extensible sin modificar código existente
+    Principio DIP: Dependency Inversion - Dependemos de abstractos, no de concretos
+    """
+    
+    @abstractmethod
+    def detect(self, message: str) -> str:
+        """
+        Detecta intención del usuario.
+        Retorna: 'satisfied', 'unsatisfied', 'refinement', 'new_search'
+        """
+        pass
+
+
+class EntityStrategy(ABC):
+    """Abstracción para estrategias de extracción de entidades (Strategy Pattern)
+    
+    Principio OCP: Open/Closed - Extensible sin modificar código existente
+    Principio DIP: Dependency Inversion - Dependemos de abstractos, no de concretos
+    """
+    
+    @abstractmethod
+    def extract(self, message: str) -> Dict:
+        """
+        Extrae entidades del mensaje.
+        Retorna: {'years': [...], 'doc_types': [...], 'topics': [...], 'has_new_info': bool}
+        """
+        pass
+
+
+class SimilarityStrategy(ABC):
+    """Abstracción para estrategias de comparación de documentos
+    
+    Principio OCP: Open/Closed - Extensible sin modificar código existente
+    """
+    
+    @abstractmethod
+    def find_similar(self, new_docs: List[Dict], previous_hrefs: set) -> Tuple[List[Dict], List[Dict]]:
+        """Compara documentos nuevos con anteriores"""
+        pass
+    
+    @abstractmethod
+    def calculate_topic_similarity(self, docs1: List[Dict], docs2: List[Dict]) -> float:
+        """Calcula similitud temática entre conjuntos de documentos"""
+        pass
+
+
+# ============================================================================
+# IMPLEMENTACIONES CONCRETAS CON INYECCIÓN DE DEPENDENCIAS
+# ============================================================================
+
 class ConversationSession:
-    """Gestiona el historial y contexto de una conversación con un usuario"""
+    """Gestiona el historial y contexto de una conversación (SRP)
+    
+    Principio SRP: Solo gestiona sesiones y su historial
+    """
     
     def __init__(self, session_id: str):
         self.session_id = session_id
         self.created_at = datetime.now()
         self.last_query = None
         self.last_results = []
-        self.search_history = []  # Lista de {'query', 'results', 'timestamp'}
-        self.user_satisfaction = None  # 'satisfied', 'unsatisfied', None
+        self.search_history = []
+        self.user_satisfaction = None
         
     def add_search(self, query: str, results: List[Dict]):
-        """Registra una búsqueda y sus resultados"""
+        """Registra una búsqueda (Decorator Pattern - envuelve con metadata)"""
         self.last_query = query
         self.last_results = results
         self.search_history.append({
@@ -32,84 +104,105 @@ class ConversationSession:
         })
         
     def get_previous_hrefs(self) -> set:
-        """Retorna los URLs de documentos de búsquedas anteriores"""
+        """Retorna URLs de búsquedas anteriores"""
         hrefs = set()
-        for search in self.search_history[:-1]:  # Excluir la última búsqueda
+        for search in self.search_history[:-1]:
             for result in search['results']:
                 hrefs.add(result['href'])
         return hrefs
     
     def is_follow_up(self) -> bool:
-        """Determina si es un mensaje de seguimiento (no la primera búsqueda)
-        
-        Retorna True si ya hay al menos una búsqueda anterior,
-        indicando que este es un mensaje de seguimiento/ramificación
-        """
+        """¿Es un mensaje de seguimiento?"""
         return len(self.search_history) >= 1
 
 
-class IntentionDetector:
-    """Detecta la intención del usuario en mensajes de seguimiento"""
+class IntentionDetector(IntentionStrategy):
+    """Detección de intención mediante regex (SRP + Strategy Pattern)
     
-    # Patrones de satisfacción (en orden de precedencia)
-    SATISFACTION_PATTERNS = {
-        'unsatisfied': [
-            r'\b(no encuentro|no está|falta|no sirve|no es|otro|diferente|otra cosa)\b',
-            r'\b(no\s+son|no\s+me|estos\s+no|eso\s+no)\b',
-            r'\b(en realidad|más bien|en lugar de|debería|preferir)\b',
-            r'\bno\s+(es|está|me|sirve)',
-            r'\b(hm|meh|nah|nope)\b',
-            r'\b(espera|wait|no|eso no)\b'
-        ],
-        'satisfied': [
-            r'\b(gracias|thank|perfecto|excelente|genial|justo|esto es|exacto|bien|ok)\b',
-            r'\bme sirve\b',
-            r'\b(listo|done|bueno)\b'
-        ]
-    }
+    Principio SRP: Solo detecta intención
+    Implementa: IntentionStrategy (polimorfismo)
+    DIP: Patrones inyectables en __init__
+    """
+    
+    def __init__(self, patterns: Optional[Dict[str, List[str]]] = None):
+        """Inyección de dependencias (DIP)
+        
+        Args:
+            patterns: Dict con patrones regex personalizados
+        """
+        self.patterns = patterns or self._default_patterns()
     
     @staticmethod
-    def detect(message: str) -> str:
-        """
-        Detecta la intención del usuario.
-        Retorna: 'satisfied', 'unsatisfied', 'refinement', 'new_search'
-        
-        NOTA: Chequea unsatisfied PRIMERO para evitar matches falsos
-        """
+    def _default_patterns() -> Dict[str, List[str]]:
+        """Patrones por defecto (separados del constructor para OCP)"""
+        return {
+            'unsatisfied': [
+                r'\b(no encuentro|no está|falta|no sirve|no es|otro|diferente|otra cosa)\b',
+                r'\b(no\s+son|no\s+me|estos\s+no|eso\s+no)\b',
+                r'\b(en realidad|más bien|en lugar de|debería|preferir)\b',
+                r'\bno\s+(es|está|me|sirve)',
+                r'\b(hm|meh|nah|nope)\b',
+                r'\b(espera|wait|no|eso no)\b'
+            ],
+            'satisfied': [
+                r'\b(gracias|thank|perfecto|excelente|genial|justo|esto es|exacto|bien|ok)\b',
+                r'\bme sirve\b',
+                r'\b(listo|done|bueno)\b'
+            ]
+        }
+    
+    def detect(self, message: str) -> str:
+        """Implementación de IntentionStrategy (polimorfismo)"""
         message_lower = message.lower().strip()
         
         # PRIMERO chequear insatisfacción (precedencia alta)
-        for pattern in IntentionDetector.SATISFACTION_PATTERNS['unsatisfied']:
+        for pattern in self.patterns['unsatisfied']:
             if re.search(pattern, message_lower):
                 return 'unsatisfied'
         
         # LUEGO chequear satisfacción
-        for pattern in IntentionDetector.SATISFACTION_PATTERNS['satisfied']:
+        for pattern in self.patterns['satisfied']:
             if re.search(pattern, message_lower):
                 return 'satisfied'
         
-        # Si tiene nueva información pero no dice "no encuentro"
-        if EntityExtractor.extract(message)['has_new_info']:
+        # Si tiene nueva información
+        extractor = EntityExtractorImpl()
+        if extractor.extract(message).get('has_new_info'):
             return 'refinement'
         
-        # Por defecto, asumir que es nueva búsqueda o sigue insatisfecho
         return 'unsatisfied'
 
 
-class EntityExtractor:
-    """Extrae información útil del mensaje del usuario"""
+class EntityExtractorImpl(EntityStrategy):
+    """Extracción de entidades mediante regex (SRP + Strategy Pattern)
+    
+    Principio SRP: Solo extrae entidades
+    Implementa: EntityStrategy (polimorfismo)
+    DIP: Tipos de documentos inyectables
+    """
+    
+    def __init__(self, doc_types: Optional[Dict[str, List[str]]] = None):
+        """Inyección de dependencias (DIP)
+        
+        Args:
+            doc_types: Dict personalizado de tipos de documentos
+        """
+        self.doc_types = doc_types or self._default_doc_types()
     
     @staticmethod
-    def extract(message: str) -> Dict:
-        """
-        Extrae entidades del mensaje.
-        Retorna: {
-            'years': [1973, 1974, ...],
-            'doc_types': ['testimonios', 'fotografías', ...],
-            'topics': ['derechos humanos', 'dictadura', ...],
-            'has_new_info': bool
+    def _default_doc_types() -> Dict[str, List[str]]:
+        """Tipos por defecto (separados para OCP)"""
+        return {
+            'testimonios': ['testimonio', 'testigo', 'declaración', 'relato'],
+            'fotografías': ['foto', 'fotografía', 'imagen', 'pic', 'visual'],
+            'reportes': ['reporte', 'informe', 'report', 'documento'],
+            'cartas': ['carta', 'carta abierta', 'missiva'],
+            'actas': ['acta', 'registro', 'protocolo'],
+            'comunicados': ['comunicado', 'boletín', 'aviso']
         }
-        """
+    
+    def extract(self, message: str) -> Dict:
+        """Implementación de EntityStrategy"""
         message_lower = message.lower()
         result = {
             'years': [],
@@ -123,21 +216,13 @@ class EntityExtractor:
         result['years'] = [int(y) for y in years]
         
         # Extraer tipos de documentos
-        doc_type_keywords = {
-            'testimonios': ['testimonio', 'testigo', 'declaración', 'relato'],
-            'fotografías': ['foto', 'fotografía', 'imagen', 'pic', 'visual'],
-            'reportes': ['reporte', 'informe', 'report', 'documento'],
-            'cartas': ['carta', 'carta abierta', 'missiva'],
-            'actas': ['acta', 'registro', 'protocolo'],
-            'comunicados': ['comunicado', 'boletín', 'aviso']
-        }
-        for doc_type, keywords in doc_type_keywords.items():
+        for doc_type, keywords in self.doc_types.items():
             for keyword in keywords:
                 if keyword in message_lower:
                     result['doc_types'].append(doc_type)
                     break
         
-        # Extraer tópicos nuevos (palabras después de "sobre", "de", "acerca")
+        # Extraer tópicos
         topics_patterns = [
             r'(?:sobre|acerca de|de)\s+([a-záéíóú\s]+?)(?:\.|,|$)',
             r'(?:principalmente|especialmente)\s+([a-záéíóú\s]+?)(?:\.|,|$)',
@@ -146,21 +231,24 @@ class EntityExtractor:
             matches = re.findall(pattern, message_lower)
             result['topics'].extend([m.strip() for m in matches if m.strip()])
         
-        # Determinar si hay información nueva
         result['has_new_info'] = bool(result['years'] or result['doc_types'] or result['topics'])
         
         return result
 
 
-class DocumentComparator:
-    """Compara documentos entre búsquedas para encontrar similitudes"""
+# Alias para compatibilidad backward
+EntityExtractor = EntityExtractorImpl
+
+
+class DocumentComparator(SimilarityStrategy):
+    """Comparación de documentos (SRP + Strategy Pattern)
     
-    @staticmethod
-    def find_similar(new_docs: List[Dict], previous_hrefs: set) -> Tuple[List[Dict], List[Dict]]:
-        """
-        Compara documentos nuevos con anteriores.
-        Retorna: (documentos_nuevos, documentos_similares_encontrados_antes)
-        """
+    Principio SRP: Solo compara documentos
+    Implementa: SimilarityStrategy (polimorfismo)
+    """
+    
+    def find_similar(self, new_docs: List[Dict], previous_hrefs: set) -> Tuple[List[Dict], List[Dict]]:
+        """Implementación de SimilarityStrategy"""
         new_hrefs = {doc['href'] for doc in new_docs}
         similar_indices = [i for i, doc in enumerate(new_docs) if doc['href'] in previous_hrefs]
         
@@ -169,12 +257,8 @@ class DocumentComparator:
         
         return truly_new, similar
     
-    @staticmethod
-    def by_topic_similarity(docs1: List[Dict], docs2: List[Dict], threshold: float = 0.5) -> float:
-        """
-        Calcula similitud temática entre dos conjuntos de documentos.
-        Usa palabras en los títulos como indicador.
-        """
+    def calculate_topic_similarity(self, docs1: List[Dict], docs2: List[Dict], threshold: float = 0.5) -> float:
+        """Implementación de SimilarityStrategy"""
         if not docs1 or not docs2:
             return 0.0
         
@@ -193,5 +277,8 @@ class DocumentComparator:
         
         overlap = len(words1.intersection(words2))
         total = len(words1.union(words2))
-        
         return overlap / total if total > 0 else 0.0
+
+
+# Alias para compatibilidad backward
+by_topic_similarity = lambda docs1, docs2, threshold=0.5: DocumentComparator().calculate_topic_similarity(docs1, docs2, threshold)

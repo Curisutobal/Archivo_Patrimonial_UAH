@@ -28,10 +28,16 @@ import markdown
 import google.generativeai as genai
 from dotenv import load_dotenv
 
-# Services (patterns: Abstract Factory, Proxy, Observer)
+# Services (patterns: Abstract Factory, Proxy, Observer, Strategy, DIP)
 from services.factory import ServiceFactory
 from services.events import EventBus, LoggingObserver
-from services.conversation import ConversationSession, IntentionDetector, EntityExtractor, DocumentComparator
+from services.conversation import (
+    ConversationSession, 
+    IntentionDetector, 
+    EntityExtractorImpl,
+    EntityExtractor,  # Alias para backward compatibility
+    DocumentComparator
+)
 
 # Machine Learning
 import numpy as np
@@ -72,7 +78,14 @@ event_bus.subscribe('response.generated', LoggingObserver('[response.generated] 
 conversation_sessions = {}
 
 # ============================================================================
-# CARGA DE DATOS
+# INYECCIÓN DE DEPENDENCIAS (DIP): Estrategias para conversación
+# ============================================================================
+# Instancias concretas de estrategias (intercambiables con nuevas implementaciones)
+intention_detector = IntentionDetector()      # Strategy: Detección de intención
+entity_extractor = EntityExtractorImpl()       # Strategy: Extracción de entidades
+document_comparator = DocumentComparator()    # Strategy: Comparación de documentos
+
+# ============================================================================
 # ============================================================================
 
 def load_documents():
@@ -813,8 +826,10 @@ def handle_follow_up_message(query: str, session: ConversationSession) -> tuple:
     """
     Maneja mensajes de seguimiento (no es la primera búsqueda).
     Retorna: (debe_hacer_nueva_busqueda: bool, nueva_query: str, respuesta_ramificacion: str or None)
+    
+    Usa estrategias inyectadas (DIP): intention_detector, entity_extractor
     """
-    intention = IntentionDetector.detect(query)
+    intention = intention_detector.detect(query)
     print(f"🎯 Intención detectada: {intention}")
     
     # Caso 1: Usuario satisfecho
@@ -824,7 +839,7 @@ def handle_follow_up_message(query: str, session: ConversationSession) -> tuple:
     
     # Caso 2: Usuario insatisfecho SIN información adicional
     if intention == 'unsatisfied':
-        entities = EntityExtractor.extract(query)
+        entities = entity_extractor.extract(query)
         if not entities['has_new_info']:
             response = """❓ Entiendo que no encontraste lo que buscabas. \n\n**Para poder ayudarte mejor, ¿podrías ser más específico?** 🤔\n\n💡 Por ejemplo:\n• **Período:** ¿De qué años? (1973-1990, 1980-1985, etc.)\n• **Tipo:** ¿Fotografías, testimonios, documentos, reportes?\n• **Tema:** ¿Hay un aspecto específico? (DDHH, partido político, organización)\n• **Persona:** ¿Hay alguien específico involucrado?\n\nCuéntame más y haré una búsqueda más dirigida. 📚"""
             return False, None, response
@@ -840,7 +855,7 @@ def handle_follow_up_message(query: str, session: ConversationSession) -> tuple:
     
     # Caso 3: Refinamiento (usuario proporciona información adicional)
     if intention == 'refinement':
-        entities = EntityExtractor.extract(query)
+        entities = entity_extractor.extract(query)
         query_parts = []
         if entities['topics']:
             query_parts.extend(entities['topics'])
