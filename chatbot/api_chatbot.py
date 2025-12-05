@@ -36,7 +36,9 @@ from services.conversation import (
     IntentionDetector, 
     EntityExtractorImpl,
     EntityExtractor,  # Alias para backward compatibility
-    DocumentComparator
+    DocumentComparator,
+    FuzzyEntityExtractor,  # Fuzzy matching para typos
+    FuzzyDocumentComparator  # Fuzzy similarity
 )
 
 # Machine Learning
@@ -82,7 +84,12 @@ conversation_sessions = {}
 # ============================================================================
 # Instancias concretas de estrategias (intercambiables con nuevas implementaciones)
 intention_detector = IntentionDetector()      # Strategy: Detección de intención
-entity_extractor = EntityExtractorImpl()       # Strategy: Extracción de entidades
+entity_extractor = FuzzyEntityExtractor()     # Strategy: Extracción con fuzzy matching (tolera typos)
+document_comparator = FuzzyDocumentComparator()  # Strategy: Comparación con fuzzy matching
+
+# Alternativas sin fuzzy (si es necesario usar):
+# entity_extractor = EntityExtractorImpl()     # Extracción estricta
+# document_comparator = DocumentComparator()   # Comparación estricta
 document_comparator = DocumentComparator()    # Strategy: Comparación de documentos
 
 # ============================================================================
