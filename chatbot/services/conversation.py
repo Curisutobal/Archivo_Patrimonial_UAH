@@ -171,6 +171,65 @@ class IntentionDetector(IntentionStrategy):
             return 'refinement'
         
         return 'unsatisfied'
+    
+    def has_explicit_search(self, message: str) -> bool:
+        """Detecta si el mensaje contiene intención clara de búsqueda
+        
+        Usado en follow-up para diferenciar entre:
+        - Saludos + búsqueda nueva: "Hola, busco fotografías 1973" → True
+        - Solo insatisfacción: "No me sirve" → False
+        - Refinamiento: "Pero del año 1980" → True (tiene info nueva)
+        
+        Returns: True si hay búsqueda explícita, False si es solo expresión/satisfacción
+        """
+        message_lower = message.lower().strip()
+        
+        # Patrones que indican búsqueda explícita
+        search_indicators = [
+            r'\b(busco|buscaba|necesito|quiero|me gustaría|dime|muestra|encuentra|busca)\b',
+            r'\b(información|info|documentos|fotografías|fotos|archivos|reportes)\b',
+            r'\b(sobre|relacionado\s+con|acerca\s+de|de)\s+',
+            r'\b(guerra|dictadura|militares|gobierno|partido|organización|persona)\b',
+            r'\d{4}(?:\s*(?:-|a)\s*\d{4})?',  # Años (1973, 1973-1990, etc)
+        ]
+        
+        for pattern in search_indicators:
+            if re.search(pattern, message_lower):
+                return True
+        
+        # Si tiene entidades (años, doc_types, topics)
+        extractor = EntityExtractorImpl()
+        entities = extractor.extract(message)
+        if entities.get('has_new_info'):
+            return True
+        
+        return False
+    
+    def remove_greetings(self, message: str) -> str:
+        """Elimina saludos de un mensaje para procesarlo mejor
+        
+        Ejemplo: "Hola, busco guerra del pacífico" → "busco guerra del pacífico"
+        
+        Returns: Mensaje sin saludos al inicio
+        """
+        message_lower = message.lower().strip()
+        
+        greeting_patterns = [
+            r'^(hola|hello|hi|hey|ola)\s*,?\s*',
+            r'^(buenos|buenas)\s+(días|dia|tardes|tarde|noches|noche)\s*,?\s*',
+            r'^saludos\s*,?\s*',
+            r'^(qué|que)\s+tal\s*,?\s*',
+            r'^solo\s+quería\s+saludar\s*,?\s*',
+        ]
+        
+        cleaned = message_lower
+        for pattern in greeting_patterns:
+            cleaned = re.sub(pattern, '', cleaned, flags=re.IGNORECASE)
+        
+        cleaned = cleaned.strip()
+        
+        # Si después de limpiar queda vacío, retornar original
+        return cleaned if cleaned else message
 
 
 class EntityExtractorImpl(EntityStrategy):

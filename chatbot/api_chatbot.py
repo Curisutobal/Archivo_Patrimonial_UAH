@@ -458,13 +458,13 @@ def detect_conversation_type(query):
     
     # Patrones de saludos
     greetings = [
-        r'^(hola|hello|hi|hey|ola)$',
-        r'^(hola|hello|hi|hey)\s*$',
+        r'^(hola|hello|hi|hey|ola)\s*(buenas?)?$',  # "hola", "hola buenas"
+        r'^(buenas|buenos)\s*(noches?|días?|dias?|tardes?)?$',  # "buenas", "buenas noches"
         r'^buen(os|as)?\s+(día|dia|días|dias|tarde|tardes|noche|noches)$',
         r'^(qué|que)\s+tal$',
         r'^cómo\s+(estás|estas|está|esta)$',
         r'^saludos$',
-        r'^buenas$',
+        r'^\s*(hola\s+)?buen(os|as)?\s*$',  # "buenos" o "hola buenos"
     ]
     
     # Patrones de despedida
@@ -829,46 +829,46 @@ def handle_follow_up_message(query: str, session: ConversationSession) -> tuple:
     
     Usa estrategias inyectadas (DIP): intention_detector, entity_extractor
     """
-    intention = intention_detector.detect(query)
-    print(f"🎯 Intención detectada: {intention}")
+    # PASO 1: Eliminar saludos del mensaje para detectar intención real
+    cleaned_query = intention_detector.remove_greetings(query)
+    print(f"🧹 Mensaje limpiado de saludos: '{query}' → '{cleaned_query}'")
     
-    # Caso 1: Usuario satisfecho
-    if intention == 'satisfied':
-        response = "¡Excelente! 😊 Me alegra haber encontrado lo que buscabas.\n\n¿Hay algo más que quieras explorar en el Archivo Patrimonial?"
-        return False, None, response
+    # PASO 2: Detectar si hay búsqueda explícita
+    has_search = intention_detector.has_explicit_search(cleaned_query)
+    print(f"🔍 ¿Hay búsqueda explícita? {has_search}")
     
-    # Caso 2: Usuario insatisfecho SIN información adicional
-    if intention == 'unsatisfied':
-        entities = entity_extractor.extract(query)
-        if not entities['has_new_info']:
+    # PASO 3: Si NO hay búsqueda explícita, detectar intención (satisfecho, insatisfecho, etc)
+    if not has_search:
+        intention = intention_detector.detect(cleaned_query)
+        print(f"🎯 Intención detectada: {intention}")
+        
+        # Caso 1: Usuario satisfecho
+        if intention == 'satisfied':
+            response = "¡Excelente! 😊 Me alegra haber encontrado lo que buscabas.\n\n¿Hay algo más que quieras explorar en el Archivo Patrimonial?"
+            return False, None, response
+        
+        # Caso 2: Usuario insatisfecho SIN información adicional
+        if intention == 'unsatisfied':
             response = """❓ Entiendo que no encontraste lo que buscabas. \n\n**Para poder ayudarte mejor, ¿podrías ser más específico?** 🤔\n\n💡 Por ejemplo:\n• **Período:** ¿De qué años? (1973-1990, 1980-1985, etc.)\n• **Tipo:** ¿Fotografías, testimonios, documentos, reportes?\n• **Tema:** ¿Hay un aspecto específico? (DDHH, partido político, organización)\n• **Persona:** ¿Hay alguien específico involucrado?\n\nCuéntame más y haré una búsqueda más dirigida. 📚"""
             return False, None, response
-        else:
-            # Hay nueva información, hacer nueva búsqueda
-            query_parts = [session.last_query]  # Mantener contexto anterior
-            if entities['topics']:
-                query_parts.extend(entities['topics'])
-            if entities['years']:
-                query_parts.append(f"años {min(entities['years'])}")
-            new_query = ' '.join(query_parts)
-            return True, new_query, None
     
-    # Caso 3: Refinamiento (usuario proporciona información adicional)
-    if intention == 'refinement':
-        entities = entity_extractor.extract(query)
-        query_parts = []
-        if entities['topics']:
-            query_parts.extend(entities['topics'])
-        if entities['years']:
-            query_parts.append(f"{min(entities['years'])}")
-        if entities['doc_types']:
-            query_parts.extend(entities['doc_types'])
-        
-        new_query = ' '.join(query_parts) if query_parts else query
-        return True, new_query, None
+    # PASO 4: Si HAY búsqueda explícita, hacer nueva búsqueda
+    # (ignorar intención de satisfacción/insatisfacción si hay términos de búsqueda claros)
+    entities = entity_extractor.extract(cleaned_query)
+    query_parts = []
     
-    # Por defecto, hacer nueva búsqueda
-    return True, query, None
+    if entities['topics']:
+        query_parts.extend(entities['topics'])
+    if entities['years']:
+        query_parts.append(f"{min(entities['years'])}")
+    if entities['doc_types']:
+        query_parts.extend(entities['doc_types'])
+    
+    # Si no extrajimos nada, usar el query limpiado
+    new_query = ' '.join(query_parts) if query_parts else cleaned_query
+    print(f"🔍 Nueva búsqueda será: '{new_query}'")
+    
+    return True, new_query, None
 
 def compare_and_format_results(new_docs: List[Dict], session: ConversationSession, original_query: str) -> str:
     """
