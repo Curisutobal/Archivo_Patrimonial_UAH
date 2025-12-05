@@ -12,6 +12,7 @@ Funcionalidades:
 
 import re
 from datetime import datetime
+from typing import List, Dict, Tuple, Optional
 import random
 import pickle
 import json
@@ -30,6 +31,7 @@ from dotenv import load_dotenv
 # Services (patterns: Abstract Factory, Proxy, Observer)
 from services.factory import ServiceFactory
 from services.events import EventBus, LoggingObserver
+from services.conversation import ConversationSession, IntentionDetector, EntityExtractor, DocumentComparator
 
 # Machine Learning
 import numpy as np
@@ -64,6 +66,10 @@ event_bus.subscribe('chat.received', LoggingObserver('[chat.received] '))
 event_bus.subscribe('chat.type_detected', LoggingObserver('[chat.type_detected] '))
 event_bus.subscribe('search.done', LoggingObserver('[search.done] '))
 event_bus.subscribe('response.generated', LoggingObserver('[response.generated] '))
+
+# Almacenamiento de sesiones conversacionales (en memoria para MVP)
+# En producción, usar Redis o base de datos
+conversation_sessions = {}
 
 # ============================================================================
 # CARGA DE DATOS
@@ -794,8 +800,105 @@ Responde de forma natural, útil y educativa:"""
         return response
 
 # ============================================================================
+# LÓGICA DE CONVERSACIÓN MULTI-TURNO
+# ============================================================================
+
+def get_or_create_session(session_id: str) -> ConversationSession:
+    """Obtiene o crea una sesión conversacional para un usuario"""
+    if session_id not in conversation_sessions:
+        conversation_sessions[session_id] = ConversationSession(session_id)
+    return conversation_sessions[session_id]
+
+def handle_follow_up_message(query: str, session: ConversationSession) -> tuple:
+    """
+    Maneja mensajes de seguimiento (no es la primera búsqueda).
+    Retorna: (debe_hacer_nueva_busqueda: bool, nueva_query: str, respuesta_ramificacion: str or None)
+    """
+    intention = IntentionDetector.detect(query)
+    print(f"🎯 Intención detectada: {intention}")
+    
+    # Caso 1: Usuario satisfecho
+    if intention == 'satisfied':
+        response = "¡Excelente! 😊 Me alegra haber encontrado lo que buscabas.\n\n¿Hay algo más que quieras explorar en el Archivo Patrimonial?"
+        return False, None, response
+    
+    # Caso 2: Usuario insatisfecho SIN información adicional
+    if intention == 'unsatisfied':
+        entities = EntityExtractor.extract(query)
+        if not entities['has_new_info']:
+            response = """❓ Entiendo que no encontraste lo que buscabas. \n\n**Para poder ayudarte mejor, ¿podrías ser más específico?** 🤔\n\n💡 Por ejemplo:\n• **Período:** ¿De qué años? (1973-1990, 1980-1985, etc.)\n• **Tipo:** ¿Fotografías, testimonios, documentos, reportes?\n• **Tema:** ¿Hay un aspecto específico? (DDHH, partido político, organización)\n• **Persona:** ¿Hay alguien específico involucrado?\n\nCuéntame más y haré una búsqueda más dirigida. 📚"""
+            return False, None, response
+        else:
+            # Hay nueva información, hacer nueva búsqueda
+            query_parts = [session.last_query]  # Mantener contexto anterior
+            if entities['topics']:
+                query_parts.extend(entities['topics'])
+            if entities['years']:
+                query_parts.append(f"años {min(entities['years'])}")
+            new_query = ' '.join(query_parts)
+            return True, new_query, None
+    
+    # Caso 3: Refinamiento (usuario proporciona información adicional)
+    if intention == 'refinement':
+        entities = EntityExtractor.extract(query)
+        query_parts = []
+        if entities['topics']:
+            query_parts.extend(entities['topics'])
+        if entities['years']:
+            query_parts.append(f"{min(entities['years'])}")
+        if entities['doc_types']:
+            query_parts.extend(entities['doc_types'])
+        
+        new_query = ' '.join(query_parts) if query_parts else query
+        return True, new_query, None
+    
+    # Por defecto, hacer nueva búsqueda
+    return True, query, None
+
+def compare_and_format_results(new_docs: List[Dict], session: ConversationSession, original_query: str) -> str:
+    """
+    Compara resultados nuevos con anteriores y formatea respuesta apropiada.
+    """
+    truly_new, similar = DocumentComparator.find_similar(new_docs, session.get_previous_hrefs())
+    
+    response = ""
+    
+    if similar:
+        response += "📌 **Documentos encontrados (algunos similares a búsquedas anteriores):**\n\n"
+        for i, doc in enumerate(new_docs, 1):
+            is_similar = "🔄 " if doc in similar else "✨ "
+            response += f"{is_similar}{i}. **{doc['title']}**\n"
+            response += f"   🔗 [Ver documento]({doc['href']})\n\n"
+    else:
+        response += "📚 **Aquí están los documentos encontrados con tu búsqueda refinada:**\n\n"
+        for i, doc in enumerate(new_docs, 1):
+            response += f"{i}. **{doc['title']}**\n"
+            response += f"   🔗 [Ver documento]({doc['href']})\n\n"
+    
+    # Calcular similitud temática
+    topic_similarity = DocumentComparator.by_topic_similarity(
+        session.last_results,
+        new_docs
+    )
+    
+    if truly_new:
+        response += f"\n💡 Encontré **{len(truly_new)} documento(s) nuevo(s)** en esta búsqueda que no aparecían antes.\n"
+    
+    if topic_similarity > 0.6:
+        response += f"🔗 Estos resultados tienen alta similitud temática con tu búsqueda anterior.\n"
+    elif topic_similarity > 0.3:
+        response += f"🔄 Estos resultados comparten algunos temas con la búsqueda anterior.\n"
+    else:
+        response += f"🆕 Estos resultados son bastante diferentes a los anteriores.\n"
+    
+    response += "\n**¿Encontraste lo que buscabas?** Si no, cuéntame más y seguiremos buscando. 😊"
+    
+    return response
+
+# ============================================================================
 # RUTAS DE LA API
 # ============================================================================
+
 
 @app.route('/api/chat', methods=['POST', 'OPTIONS'])
 def chat():
@@ -812,6 +915,7 @@ def chat():
         return response, 200
     
     query = ""
+    session_id = ""
     try:
         print(f"\n{'='*60}")
         print(f"📥 Nueva solicitud recibida")
@@ -821,15 +925,18 @@ def chat():
 
         # Obtener query de JSON o form
         data = request.get_json(silent=True)
-        if data and isinstance(data, dict) and 'query' in data:
-            query = data['query']
+        if data and isinstance(data, dict):
+            query = data.get('query', '')
+            session_id = data.get('session_id', 'default')
             print(f"✅ Query from JSON: '{query}'")
         else:
             query = request.form.get('query', '')
+            session_id = request.form.get('session_id', 'default')
             print(f"✅ Query from form: '{query}'")
 
         query = query.strip()
         print(f"🔎 Query procesada: '{query}'")
+        print(f"🆔 Session ID: {session_id}")
         event_bus.publish('chat.received', {'query': query})
 
         if not query:
@@ -840,6 +947,50 @@ def chat():
                 'details': 'La consulta no puede estar vacía.'
             }), 400
 
+        # Obtener o crear sesión del usuario
+        session = get_or_create_session(session_id)
+        print(f"📋 Session creada/recuperada. Historial: {len(session.search_history)} búsquedas")
+
+        # Verificar si es seguimiento ANTES de agregar la búsqueda actual
+        is_follow_up = session.is_follow_up()
+        
+        # ============ LÓGICA DE SEGUIMIENTO ============
+        # Si es un mensaje de seguimiento (no la primera búsqueda)
+        if is_follow_up:
+            print(f"🔄 Mensaje de seguimiento detectado (búsquedas previas: {len(session.search_history)})")
+            should_search, refined_query, branch_response = handle_follow_up_message(query, session)
+            
+            if branch_response:
+                # Es una ramificación de la lógica (satisfecho, pedir detalles, etc)
+                print(f"💬 Respuesta de ramificación: {len(branch_response)} caracteres")
+                response_html = markdown.markdown(branch_response)
+                event_bus.publish('response.generated', {'chars': len(branch_response), 'docs': 0})
+                
+                return jsonify({
+                    'success': True,
+                    'response': response_html,
+                    'documents': [],
+                    'embeddings_ready': embeddings_ready,
+                    'conversation_type': 'follow_up_branch',
+                    'session_id': session_id
+                })
+            
+            if not should_search:
+                # No hay nueva búsqueda que hacer
+                return jsonify({
+                    'success': True,
+                    'response': markdown.markdown("✅ ¿En qué más te puedo ayudar?"),
+                    'documents': [],
+                    'embeddings_ready': embeddings_ready,
+                    'conversation_type': 'follow_up_satisfied',
+                    'session_id': session_id
+                })
+            
+            # Hay nueva búsqueda que hacer
+            query = refined_query
+            print(f"🔍 Nueva búsqueda con query refinada: '{query}'")
+
+        # ============ FLUJO NORMAL (primera búsqueda o búsqueda refinada) ============
         # PASO 1: DETECTAR TIPO DE CONVERSACIÓN
         conversation_type = detect_conversation_type(query)
         print(f"🎯 Tipo detectado: {conversation_type}")
@@ -859,7 +1010,8 @@ def chat():
                     'response': response_html,
                     'documents': [],
                     'embeddings_ready': embeddings_ready,
-                    'conversation_type': conversation_type
+                    'conversation_type': conversation_type,
+                    'session_id': session_id
                 })
         
         # PASO 3: SI ES 'search', BUSCAR DOCUMENTOS (6 documentos) Y SUGERENCIAS
@@ -868,6 +1020,9 @@ def chat():
         print(f"📄 Encontrados {len(relevant_docs)} documentos")
         if suggestions:
             print(f"💡 Generadas {len(suggestions)} sugerencias")
+        
+        # Registrar búsqueda en la sesión
+        session.add_search(query, relevant_docs)
 
         # PASO 4: GENERAR RESPUESTA CON IA (incluyendo sugerencias)
         print(f"🤖 Generando respuesta con IA...")
@@ -883,7 +1038,8 @@ def chat():
             'response': response_html,
             'documents': relevant_docs,
             'embeddings_ready': embeddings_ready,
-            'conversation_type': conversation_type
+            'conversation_type': conversation_type,
+            'session_id': session_id
         })
 
     except Exception as e:
