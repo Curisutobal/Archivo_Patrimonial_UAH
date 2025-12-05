@@ -83,22 +83,145 @@ Se reforzó el backend del chatbot (`chatbot/api_chatbot.py`) con tres patrones 
   - **¿Qué hace?** Implementa un bus de eventos simple (publicar/suscribir) y un observador de logging (`LoggingObserver`).
   - **¿Por qué aquí?** Permite registrar lo que ocurre (recibir consultas, tipo detectado, búsqueda hecha, respuesta generada) sin mezclar logs con la lógica central. Así podemos añadir métricas o auditoría sin tocar el flujo principal.
 
+- **Strategy (Explícito)** — `chatbot/services/conversation.py`
+  - **¿Qué hace?** Define abstracciones base (`IntentionStrategy`, `EntityStrategy`, `SimilarityStrategy`) que permiten múltiples implementaciones intercambiables.
+  - **¿Por qué aquí?** El chatbot necesita ser extensible: hoy usamos regex para detección, mañana queremos Gemini o ML. Las estrategias permitenSwitch sin tocar el código existente.
+
 ### Principios SOLID aplicados
 
 - **SRP (Single Responsibility Principle)**
   - **¿Qué significa?** Cada módulo hace una sola cosa.
   - **Aplicación:** Separar creación de servicios (Factory), llamadas a IA (Proxy) y eventos (Observer) del controlador Flask (`api_chatbot.py`). Resultado: archivos más simples y fáciles de mantener.
+  - **En conversation.py:** Cada clase (`ConversationSession`, `IntentionDetector`, `EntityExtractor`, `DocumentComparator`) tiene UNA responsabilidad específica. Ninguna mezcla lógicas.
 
-- **DIP (Dependency Inversion Principle)**
+- **OCP (Open/Closed Principle) — Mejorado en conversation.py**
+  - **¿Qué significa?** Las clases deben ser abiertas para EXTENSIÓN, cerradas para MODIFICACIÓN.
+  - **Aplicación en conversation.py:**
+    - Abstracciones base: `IntentionStrategy`, `EntityStrategy`, `SimilarityStrategy`
+    - Nuevas implementaciones heredan sin tocar código existente
+    - **Ejemplos de extensión futura:**
+      ```python
+      class GeminiIntentionDetector(IntentionStrategy):
+          """Detección mejorada con IA (sin modificar código actual)"""
+          def detect(self, message):
+              # Usa Gemini en lugar de regex
+              return genai.detect_intention(message)
+      
+      class EmbeddingComparator(SimilarityStrategy):
+          """Similitud con embeddings (sin modificar código actual)"""
+          def calculate_topic_similarity(self, docs1, docs2):
+              # Usa embeddings en lugar de palabras
+              return embedding_based_similarity(docs1, docs2)
+      ```
+    - El resto del código sigue funcionando sin cambios
+
+- **DIP (Dependency Inversion Principle) — Mejorado en conversation.py**
+  - **¿Qué significa?** Depender de abstracciones, no de implementaciones concretas.
+  - **Aplicación en conversation.py:**
+    - Inyección de dependencias en constructores
+    - Patrones personalizables sin modificar la clase
+    - **Ejemplo:**
+      ```python
+      # Uso por defecto (regex)
+      detector = IntentionDetector()
+      
+      # Uso personalizado (patrones custom)
+      custom_patterns = {
+          'satisfied': [r'...'],
+          'unsatisfied': [r'...']
+      }
+      detector = IntentionDetector(patterns=custom_patterns)
+      
+      # Uso futuro (estrategia diferente completamente)
+      detector = GeminiIntentionDetector()  # Otro proveedor, mismo interfaz
+      ```
+    - En `api_chatbot.py`: instancias de estrategias inyectadas como globales
+      ```python
+      intention_detector = IntentionDetector()      # Intercambiable
+      entity_extractor = EntityExtractorImpl()       # Intercambiable
+      document_comparator = DocumentComparator()    # Intercambiable
+      ```
+
+- **DIP (Dependency Inversion Principle) — Clásico**
   - **¿Qué significa?** El código debe depender de abstracciones, no de detalles concretos.
-  - **Aplicación:** `api_chatbot.py` ahora pide “servicios” al `ServiceFactory` (abstracción). Si cambia Gemini o si no hay conexión, el resto del código sigue funcionando sin cambios.
+  - **Aplicación:** `api_chatbot.py` ahora pide "servicios" al `ServiceFactory` (abstracción). Si cambia Gemini o si no hay conexión, el resto del código sigue funcionando sin cambios.
 
 ### ¿En qué archivos se aplicó?
 
-- `chatbot/api_chatbot.py` — usa la fábrica y el bus de eventos; mantiene endpoints y comportamiento.
-- `chatbot/services/factory.py` — crea funciones de embedding de consulta y de respuesta (IA).
-- `chatbot/services/llm_proxy.py` — protege llamadas a Gemini (embed y generate).
+- `chatbot/api_chatbot.py` — usa la fábrica, bus de eventos y estrategias inyectadas; mantiene endpoints y comportamiento.
+- `chatbot/services/factory.py` — crea funciones de embedding y respuesta (IA).
+- `chatbot/services/llm_proxy.py` — protege llamadas a Gemini.
 - `chatbot/services/events.py` — EventBus y LoggingObserver para registro desacoplado.
+- **`chatbot/services/conversation.py`** — ⭐ **NUEVO**: Gestión multi-turno, estrategias base (OCP), inyección (DIP)
+  - `ConversationSession` — gestiona historial por usuario (SRP)
+  - `IntentionStrategy` (abstracta) / `IntentionDetector` (regex) — detecta intención (OCP+DIP)
+  - `EntityStrategy` (abstracta) / `EntityExtractorImpl` (regex) — extrae entidades (OCP+DIP)
+  - `SimilarityStrategy` (abstracta) / `DocumentComparator` — compara documentos (OCP+DIP)
+
+## ⭐ Conversación Multi-turno (Nuevo)
+
+El chatbot ahora mantiene contexto entre múltiples mensajes y adapta su lógica según la intención del usuario:
+
+### Flujos de conversación
+
+1. **Usuario satisfecho**
+   ```
+   User:  "dictadura 1973"
+   Bot:   [5 documentos relevantes]
+   
+   User:  "Gracias, perfecto"
+   Bot:   "¡Excelente! ¿Hay algo más que quieras explorar?"
+   ```
+
+2. **Usuario insatisfecho → pide detalles**
+   ```
+   User:  "derechos humanos"
+   Bot:   [6 documentos]
+   
+   User:  "No encuentro lo que buscaba"
+   Bot:   "¿Puedes ser más específico? ¿Años? ¿Tipo de documento? ¿Tema?"
+   ```
+
+3. **Usuario insatisfecho + proporciona detalles → re-búsqueda**
+   ```
+   User:  "No encuentro"
+   Bot:   "¿Puedes ser más específico?"
+   
+   User:  "Quiero de 1975 a 1980"
+   Bot:   [Nueva búsqueda refinada con años]
+   ```
+
+4. **Refinamiento (cambio de tema)**
+   ```
+   User:  "dictadura"
+   Bot:   [documentos sobre dictadura]
+   
+   User:  "En realidad quiero derechos humanos 1980"
+   Bot:   [Nueva búsqueda adaptada]
+   ```
+
+### Cómo funciona (tecnicamente)
+
+- **`session_id`** en cada request identifica al usuario y mantiene historial
+- **`IntentionDetector`** clasifica el mensaje: satisfied / unsatisfied / refinement
+- **`EntityExtractor`** obtiene contexto: años, tipos de doc, tópicos
+- **`DocumentComparator`** marca documentos como repetidos (🔄) o nuevos (✨)
+- **Ramificación inteligente:** El endpoint `/api/chat` cambia comportamiento según intención
+
+### Extensibilidad
+
+Todas las estrategias son intercambiables sin modificar el código:
+
+```python
+# Hoy: regex (rápido, local)
+detector = IntentionDetector()
+
+# Mañana: Gemini (más sofisticado)
+detector = GeminiIntentionDetector()
+
+# El resto del código sigue igual (polimorfismo)
+intention = detector.detect(message)  # Funciona con ambos
+```
 
 ## ¿Por qué no usamos otros patrones (y cuáles)?
 
