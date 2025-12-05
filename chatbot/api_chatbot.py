@@ -465,7 +465,7 @@ def detect_conversation_type(query):
     
     # Patrones de saludos
     greetings = [
-        r'^(hola|hello|hi|hey|ola)\s*(buenas?)?$',  # "hola", "hola buenas"
+        r'^(hola|hello|hi|hey|ola)\s*(,|buenas?|días?|dias?|noches?|tardes?)?$',  # "hola", "hola buenas", "hola días"
         r'^(buenas|buenos)\s*(noches?|días?|dias?|tardes?)?$',  # "buenas", "buenas noches"
         r'^buen(os|as)?\s+(día|dia|días|dias|tarde|tardes|noche|noches)$',
         r'^(qué|que)\s+tal$',
@@ -973,6 +973,31 @@ def chat():
         session = get_or_create_session(session_id)
         print(f"📋 Session creada/recuperada. Historial: {len(session.search_history)} búsquedas")
 
+        # ============ PASO 1: DETECTAR TIPO DE CONVERSACIÓN PRIMERO ============
+        # Esto asegura que saludos, despedidas, etc. se respondan conversacionalmente
+        # INCLUSO en mensajes de seguimiento (si es solo "Hola buenas", no debe hacer búsqueda)
+        conversation_type = detect_conversation_type(query)
+        print(f"🎯 Tipo detectado: {conversation_type}")
+        event_bus.publish('chat.type_detected', {'type': conversation_type})
+        
+        # ============ PASO 2: SI ES CONVERSACIÓN CASUAL, RESPONDER SIN BUSCAR ============
+        if conversation_type in ['greeting', 'farewell', 'gratitude', 'help', 'smalltalk']:
+            print(f"💬 Respuesta conversacional (sin búsqueda)")
+            response_text = generate_conversational_response(query, conversation_type)
+            
+            if response_text:
+                response_html = markdown.markdown(response_text)
+                event_bus.publish('response.generated', {'chars': len(response_text), 'docs': 0})
+                
+                return jsonify({
+                    'success': True,
+                    'response': response_html,
+                    'documents': [],
+                    'embeddings_ready': embeddings_ready,
+                    'conversation_type': conversation_type,
+                    'session_id': session_id
+                })
+
         # Verificar si es seguimiento ANTES de agregar la búsqueda actual
         is_follow_up = session.is_follow_up()
         
@@ -1013,29 +1038,6 @@ def chat():
             print(f"🔍 Nueva búsqueda con query refinada: '{query}'")
 
         # ============ FLUJO NORMAL (primera búsqueda o búsqueda refinada) ============
-        # PASO 1: DETECTAR TIPO DE CONVERSACIÓN
-        conversation_type = detect_conversation_type(query)
-        print(f"🎯 Tipo detectado: {conversation_type}")
-        event_bus.publish('chat.type_detected', {'type': conversation_type})
-        
-        # PASO 2: SI ES CONVERSACIÓN CASUAL, RESPONDER SIN BUSCAR
-        if conversation_type in ['greeting', 'farewell', 'gratitude', 'help', 'smalltalk']:
-            print(f"💬 Respuesta conversacional (sin búsqueda)")
-            response_text = generate_conversational_response(query, conversation_type)
-            
-            if response_text:
-                response_html = markdown.markdown(response_text)
-                event_bus.publish('response.generated', {'chars': len(response_text), 'docs': 0})
-                
-                return jsonify({
-                    'success': True,
-                    'response': response_html,
-                    'documents': [],
-                    'embeddings_ready': embeddings_ready,
-                    'conversation_type': conversation_type,
-                    'session_id': session_id
-                })
-        
         # PASO 3: SI ES 'search', BUSCAR DOCUMENTOS (6 documentos) Y SUGERENCIAS
         print(f"🔍 Realizando búsqueda de documentos...")
         relevant_docs, suggestions = search_documents(query, top_k=6, include_suggestions=True)
