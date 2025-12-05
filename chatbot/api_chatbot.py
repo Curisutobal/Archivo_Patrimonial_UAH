@@ -18,6 +18,7 @@ import pickle
 import json
 import os
 import traceback
+import pytz
 
 # Flask imports
 from flask import Flask, request, jsonify
@@ -546,8 +547,9 @@ def detect_conversation_type(query):
 def generate_conversational_response(query, conversation_type):
     """Genera respuestas naturales según el tipo de conversación"""
     
-    # Obtener hora para saludos contextuales
-    hour = datetime.now().hour
+    # Obtener hora en zona horaria de Chile (Santiago)
+    chile_tz = pytz.timezone('America/Santiago')
+    hour = datetime.now(chile_tz).hour
     time_greeting = "Buenos días" if 5 <= hour < 12 else "Buenas tardes" if 12 <= hour < 20 else "Buenas noches"
     
     responses = {
